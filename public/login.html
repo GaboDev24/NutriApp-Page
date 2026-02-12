@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NutriApp - Iniciar Sesión</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+
+<body>
+    <div class="auth-wrapper">
+        <div class="auth-card glass">
+            <div class="auth-header">
+                <h2>Bienvenido de nuevo</h2>
+                <p>Continúa tu progreso hoy</p>
+            </div>
+            <form id="loginForm">
+                <div class="form-group">
+                    <label>Correo Electrónico</label>
+                    <input type="email" id="email" class="form-input" placeholder="correo@ejemplo.com" required>
+                </div>
+                <div class="form-group">
+                    <label>Contraseña</label>
+                    <input type="password" id="password" class="form-input" placeholder="••••••••" required>
+                </div>
+                <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 1rem;">Iniciar
+                    Sesión</button>
+            </form>
+            <div class="auth-footer">
+                ¿No tienes cuenta? <a href="signup.html">Regístrate</a><br><br>
+                <a href="forgot-password.html">¿Olvidaste tu contraseña?</a>
+            </div>
+        </div>
+    </div>
+    <script src="js/auth.js"></script>
+</body>
+
+</html>

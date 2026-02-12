@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NutriApp - Mi Panel</title>
+    <link rel="stylesheet" href="css/style.css">
+    <style>
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: 250px 1fr;
+            gap: 2rem;
+            margin-top: 5rem;
+            min-height: calc(100vh - 5rem);
+        }
+
+        .sidebar {
+            padding: 2rem;
+            border-right: 1px solid #e2e8f0;
+        }
+
+        .main-content {
+            padding: 2rem;
+        }
+
+        .card {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 1rem;
+            box-shadow: var(--shadow);
+            margin-bottom: 2rem;
+        }
+
+        .metric-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .metric-card {
+            text-align: center;
+            padding: 2rem;
+        }
+
+        .metric-value {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: var(--primary);
+        }
+    </style>
+</head>
+
+<body>
+    <header class="scrolled">
+        <div class="container">
+            <nav>
+                <div class="logo">NutriApp</div>
+                <div id="userInfo">Hola, <span id="userName">Cargando...</span></div>
+            </nav>
+        </div>
+    </header>
+
+    <div class="container container-dashboard">
+        <div class="dashboard-grid">
+            <aside class="sidebar">
+                <ul style="list-style: none;">
+                    <li style="margin-bottom: 1rem;"><a href="#" class="btn btn-primary" style="width: 100%;">Mi
+                            Resumen</a></li>
+                    <li style="margin-bottom: 1rem;"><a href="#" class="btn btn-outline" style="width: 100%;">Mi
+                            Rutina</a></li>
+                    <li style="margin-bottom: 1rem;"><a href="#" class="btn btn-outline" style="width: 100%;">Progreso
+                            Diario</a></li>
+                    <li style="margin-bottom: 1rem;"><a href="#" class="btn btn-outline"
+                            style="width: 100%;">Profesionales</a></li>
+                    <li style="margin-top: 5rem;"><button id="logoutBtn" class="btn btn-outline"
+                            style="width: 100%; border-color: #ef4444; color: #ef4444;">Cerrar Sesión</button></li>
+                </ul>
+            </aside>
+
+            <main class="main-content">
+                <section id="onboarding" style="display: none;">
+                    <div class="card">
+                        <h3>Completa tu perfil</h3>
+                        <p>Necesitamos estos datos para generar tu rutina personalizada.</p>
+                        <form id="onboardingForm" style="margin-top: 1.5rem;">
+                            <div class="form-group">
+                                <label>Altura (cm)</label>
+                                <input type="number" id="height" class="form-input" required>
+                            </div>
+                            <div class="form-group">
+                                <label>Peso (kg)</label>
+                                <input type="number" id="weight" class="form-input" required>
+                            </div>
+                            <div class="form-group">
+                                <label>Estilo de Vida</label>
+                                <select id="lifestyle" class="form-input">
+                                    <option value="sedentary">Sedentario (Poco ejercicio)</option>
+                                    <option value="lightly_active">Ligero (1-2 días/semana)</option>
+                                    <option value="moderately_active">Moderado (3-5 días/semana)</option>
+                                    <option value="very_active">Intenso (6-7 días/semana)</option>
+                                </select>
+                            </div>
+                            <button type="submit" class="btn btn-primary">Generar mi Rutina</button>
+                        </form>
+                    </div>
+                </section>
+
+                <section id="overview">
+                    <div class="metric-grid">
+                        <div class="card metric-card">
+                            <p>Peso Actual</p>
+                            <div class="metric-value"><span id="userWeight">--</span> kg</div>
+                        </div>
+                        <div class="card metric-card">
+                            <p>Meta Diaria</p>
+                            <div class="metric-value"><span id="userCals">--</span> kcal</div>
+                        </div>
+                    </div>
+                    <div class="card">
+                        <h3>Mi Rutina de Hoy</h3>
+                        <div id="routineList">
+                            <p>No tienes una rutina generada aún.</p>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <h3>Profesionales Disponibles</h3>
+                        <div id="prosList">
+                            <p>Cargando profesionales...</p>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <h3>Registrar Progreso de Hoy</h3>
+                        <form id="progressForm">
+                            <div class="form-group">
+                                <label>Peso actual (kg)</label>
+                                <input type="number" id="currentWeight" class="form-input" required>
+                            </div>
+                            <div class="form-group">
+                                <label>Notas del día</label>
+                                <textarea id="dayNotes" class="form-input" style="height: 100px;"></textarea>
+                            </div>
+                            <button type="submit" class="btn btn-primary">Guardar Progreso</button>
+                        </form>
+                    </div>
+            </main>
+        </div>
+    </div>
+    </div>
+    <script src="js/dashboard.js"></script>
+</body>
+
+</html>

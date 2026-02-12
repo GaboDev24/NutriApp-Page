@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NutriApp - Panel Profesional</title>
+    <link rel="stylesheet" href="css/style.css">
+    <style>
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: 250px 1fr;
+            gap: 2rem;
+            margin-top: 5rem;
+            min-height: calc(100vh - 5rem);
+        }
+
+        .sidebar {
+            padding: 2rem;
+            border-right: 1px solid #e2e8f0;
+        }
+
+        .main-content {
+            padding: 2rem;
+        }
+
+        .card {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 1rem;
+            box-shadow: var(--shadow);
+            margin-bottom: 2rem;
+        }
+
+        .patient-list {
+            list-style: none;
+        }
+
+        .patient-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem;
+            border-bottom: 1px solid #f1f5f9;
+        }
+    </style>
+</head>
+
+<body>
+    <header class="scrolled">
+        <div class="container">
+            <nav>
+                <div class="logo">NutriApp Pro</div>
+                <div id="userInfo">Hola, <span id="userName">Cargando...</span></div>
+            </nav>
+        </div>
+    </header>
+
+    <div class="container container-dashboard">
+        <div class="dashboard-grid">
+            <aside class="sidebar">
+                <ul style="list-style: none;">
+                    <li style="margin-bottom: 1rem;"><a href="#" class="btn btn-primary" style="width: 100%;">Mis
+                            Pacientes</a></li>
+                    <li style="margin-bottom: 1rem;"><a href="#" class="btn btn-outline"
+                            style="width: 100%;">Solicitudes</a></li>
+                    <li style="margin-top: 5rem;"><button id="logoutBtn" class="btn btn-outline"
+                            style="width: 100%; border-color: #ef4444; color: #ef4444;">Cerrar Sesión</button></li>
+                </ul>
+            </aside>
+
+            <main class="main-content">
+                <section id="pendingRequests">
+                    <h3>Solicitudes Pendientes</h3>
+                    <div class="card">
+                        <ul id="requestsList" class="patient-list">
+                            <li>Cargando solicitudes...</li>
+                        </ul>
+                    </div>
+                </section>
+
+                <section id="activePatients">
+                    <h3>Mis Pacientes</h3>
+                    <div class="card">
+                        <ul id="patientsList" class="patient-list">
+                            <li>Cargando pacientes...</li>
+                        </ul>
+                    </div>
+                </section>
+            </main>
+        </div>
+    </div>
+    <script src="js/pro-dashboard.js"></script>
+</body>
+
+</html>
