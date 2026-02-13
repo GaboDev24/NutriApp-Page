@@ -36,7 +36,7 @@ app.use('/api/public', publicRoutes);
 
 // For production (Vercel)
 if (process.env.NODE_ENV === 'production') {
-    app.get('*', (req, res) => {
+    app.get(/(.*)/, (req, res) => {
         res.sendFile(path.join(__dirname, '../public/index.html'));
     });
 }
