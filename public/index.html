@@ -55,8 +55,70 @@
             </div>
         </section>
 
-        <!-- More sections will be added as we progress -->
+        <section id="funcionalidades">
+            <div class="container">
+                <div class="section-header">
+                    <h2>Todo lo que necesitas</h2>
+                    <p>Herramientas diseñadas para que alcances tus objetivos de forma saludable e inteligente.</p>
+                </div>
+                <div class="features-grid">
+                    <div class="feature-card">
+                        <div class="feature-icon">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M20.24 12.24a6 6 0 0 0-8.49-8.49L5 10.5V19h8.5z"></path>
+                                <line x1="16" y1="8" x2="2" y2="22"></line>
+                                <line x1="17.5" y1="15" x2="9" y2="15"></line>
+                            </svg>
+                        </div>
+                        <h3>Rutinas Personalizadas</h3>
+                        <p>Planes de alimentación adaptados a tu altura, peso y nivel de actividad diaria.</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                                <circle cx="9" cy="7" r="4"></circle>
+                                <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+                                <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+                            </svg>
+                        </div>
+                        <h3>Asesoría Profesional</h3>
+                        <p>Conéctate con nutricionistas certificados que supervisarán tu progreso personalmente.</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline>
+                            </svg>
+                        </div>
+                        <h3>Control de Progreso</h3>
+                        <p>Registra tu peso y sensaciones diarias para ver transformaciones reales en el tiempo.</p>
+                    </div>
+                </div>
+            </div>
+            <section id="profesionales" style="background: white;">
+                <div class="container">
+                    <div class="section-header">
+                        <h2>Nuestros Profesionales</h2>
+                        <p>Expertos listos para acompañarte en cada paso de tu transformación.</p>
+                    </div>
+                    <div id="pros-container" class="features-grid">
+                        <!-- Dynamic pros will appear here -->
+                        <p style="text-align: center; width: 100%;">Cargando profesionales...</p>
+                    </div>
+                </div>
+            </section>
     </main>
+
+    <footer>
+        <div class="container">
+            <div class="footer-logo">NutriApp</div>
+            <p>&copy; 2026 NutriApp. Todos los derechos reservados.</p>
+        </div>
+    </footer>
 
     <script>
         window.addEventListener('scroll', () => {
@@ -75,6 +137,34 @@
         mobMenu.addEventListener('click', () => {
             navList.classList.toggle('active');
         });
+
+        // Fetch dynamic professionals
+        async function loadProfessionals() {
+            try {
+                const response = await fetch('/api/public/professionals');
+                const pros = await response.json();
+                const container = document.getElementById('pros-container');
+
+                if (pros.length === 0) {
+                    container.innerHTML = '<p style="text-align: center; width: 100%;">Próximamente más profesionales disponibles.</p>';
+                    return;
+                }
+
+                container.innerHTML = pros.map(pro => `
+                    <div class="pro-card">
+                        <div class="pro-info">
+                            <h3>${pro.name}</h3>
+                            <p>${pro.specialization || 'Nutricionista General'}</p>
+                            <a href="signup.html" class="btn btn-outline" style="margin-top: 1rem;">Solicitar Atención</a>
+                        </div>
+                    </div>
+                `).join('');
+            } catch (err) {
+                console.error('Error loading professionals:', err);
+            }
+        }
+
+        loadProfessionals();
     </script>
 </body>
 

@@ -12,7 +12,7 @@ router.get('/patients', isAuth, async (req, res) => {
             .populate('pendingRequests', 'name email');
         res.json(pro);
     } catch (err) {
-        res.status(500).json({ message: 'Server error' });
+        res.status(500).json({ message: 'Error en el servidor al obtener la lista de pacientes y solicitudes.' });
     }
 });
 
@@ -32,9 +32,9 @@ router.post('/handle-request', isAuth, async (req, res) => {
         pro.pendingRequests = pro.pendingRequests.filter(id => id.toString() !== userId);
         await pro.save();
 
-        res.json({ message: `Request ${action}ed` });
+        res.json({ message: `Solicitud ${action === 'accept' ? 'aceptada' : 'denegada'}` });
     } catch (err) {
-        res.status(500).json({ message: 'Server error' });
+        res.status(500).json({ message: 'Error en el servidor al procesar la solicitud del paciente.' });
     }
 });
 

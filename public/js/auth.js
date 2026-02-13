@@ -3,6 +3,13 @@ document.addEventListener('DOMContentLoaded', () => {
     const loginForm = document.getElementById('loginForm');
     const forgotPasswordForm = document.getElementById('forgotPasswordForm');
     const resendVerificationForm = document.getElementById('resendVerificationForm');
+    const notification = document.getElementById('notification');
+
+    function showNotification(message, type = 'success') {
+        if (!notification) return;
+        notification.textContent = message;
+        notification.className = `notification ${type}`;
+    }
 
     // Signup logic
     if (signupForm) {
@@ -23,9 +30,14 @@ document.addEventListener('DOMContentLoaded', () => {
                     body: JSON.stringify(data)
                 });
                 const result = await response.json();
-                alert(result.message || (result.errors && result.errors[0].msg));
+                if (response.ok) {
+                    showNotification(result.message, 'success');
+                } else {
+                    showNotification(result.message || (result.errors && result.errors[0].msg), 'error');
+                }
             } catch (err) {
-                alert('Error al registrar usuario');
+                console.error('Error en el registro:', err);
+                showNotification('Ocurrió un error al intentar conectarse con el servidor. Por favor, inténtalo de nuevo más tarde.', 'error');
             }
         });
     }
@@ -51,10 +63,11 @@ document.addEventListener('DOMContentLoaded', () => {
                     localStorage.setItem('user', JSON.stringify(result.user));
                     window.location.href = result.user.role === 'pro' ? 'pro-dashboard.html' : 'user-dashboard.html';
                 } else {
-                    alert(result.message);
+                    showNotification(result.message, 'error');
                 }
             } catch (err) {
-                alert('Error al iniciar sesión');
+                console.error('Error en inicio de sesión:', err);
+                showNotification('Error al intentar iniciar sesión. Por favor, comprueba tu conexión e inténtalo de nuevo.', 'error');
             }
         });
     }
@@ -72,9 +85,14 @@ document.addEventListener('DOMContentLoaded', () => {
                     body: JSON.stringify(data)
                 });
                 const result = await response.json();
-                alert(result.message);
+                if (response.ok) {
+                    showNotification(result.message, 'success');
+                } else {
+                    showNotification(result.message, 'error');
+                }
             } catch (err) {
-                alert('Error al enviar enlace');
+                console.error('Error en recuperar contraseña:', err);
+                showNotification('Error al enviar el enlace de recuperación. Por favor, verifica tu correo e inténtalo de nuevo.', 'error');
             }
         });
     }
@@ -92,9 +110,14 @@ document.addEventListener('DOMContentLoaded', () => {
                     body: JSON.stringify(data)
                 });
                 const result = await response.json();
-                alert(result.message);
+                if (response.ok) {
+                    showNotification(result.message, 'success');
+                } else {
+                    showNotification(result.message, 'error');
+                }
             } catch (err) {
-                alert('Error al reenviar correo');
+                console.error('Error en reenviar verificación:', err);
+                showNotification('No se pudo completar el reenvío del correo. Por favor, inténtalo de nuevo en unos momentos.', 'error');
             }
         });
     }

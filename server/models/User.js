@@ -6,18 +6,18 @@ const userSchema = new mongoose.Schema({
     password: { type: String, required: true },
     role: { type: String, default: 'user' },
     isVerified: { type: Boolean, default: false },
-    verificationToken: String,
-    resetPasswordToken: String,
-    resetPasswordExpires: Date,
-    height: Number,
-    weight: Number,
-    lifestyle: { 
-        type: String, 
+    verificationToken: { type: String, default: null },
+    resetPasswordToken: { type: String, default: null },
+    resetPasswordExpires: { type: Date, default: null },
+    height: { type: Number, default: null },
+    weight: { type: Number, default: null },
+    lifestyle: {
+        type: String,
         enum: ['sedentary', 'lightly_active', 'moderately_active', 'very_active', 'extra_active'],
         default: 'sedentary'
     },
-    assignedProfessional: { type: mongoose.Schema.Types.ObjectId, ref: 'Professional' },
-    routine: { type: mongoose.Schema.Types.ObjectId, ref: 'Routine' },
+    assignedProfessional: { type: mongoose.Schema.Types.ObjectId, ref: 'Professional', default: null },
+    routine: { type: mongoose.Schema.Types.ObjectId, ref: 'Routine', default: null },
     createdAt: { type: Date, default: Date.now }
 });
 

@@ -7,6 +7,15 @@ document.addEventListener('DOMContentLoaded', async () => {
         return;
     }
 
+    const notification = document.getElementById('notification');
+
+    function showNotification(message, type = 'success') {
+        if (!notification) return;
+        notification.textContent = message;
+        notification.className = `notification ${type}`;
+        setTimeout(() => { notification.className = 'notification'; }, 5000);
+    }
+
     document.getElementById('userName').textContent = user.name;
 
     const fetchPatients = async () => {
@@ -54,7 +63,11 @@ document.addEventListener('DOMContentLoaded', async () => {
             body: JSON.stringify({ userId, action })
         });
         if (response.ok) {
+            const res = await response.json();
+            showNotification(res.message);
             fetchPatients();
+        } else {
+            showNotification('Error al procesar la solicitud', 'error');
         }
     };
 

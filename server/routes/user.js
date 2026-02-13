@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const isAuth = require('../middleware/auth');
 const User = require('../models/User');
+const Professional = require('../models/Professional');
 const Routine = require('../models/Routine');
 const UserProgress = require('../models/Progress');
 
@@ -11,7 +12,7 @@ router.get('/profile', isAuth, async (req, res) => {
         const user = await User.findById(req.userId).populate('routine');
         res.json(user);
     } catch (err) {
-        res.status(500).json({ message: 'Server error' });
+        res.status(500).json({ message: 'Error en el servidor al obtener el perfil de usuario.' });
     }
 });
 
@@ -44,9 +45,9 @@ router.post('/setup-routine', isAuth, async (req, res) => {
         user.routine = routine._id;
         await user.save();
 
-        res.status(200).json({ message: 'Routine generated successfully', routine });
+        res.status(200).json({ message: 'Rutina generada con éxito', routine });
     } catch (err) {
-        res.status(500).json({ message: 'Server error', error: err.message });
+        res.status(500).json({ message: 'Error en el servidor al generar la rutina.' });
     }
 });
 
@@ -56,7 +57,7 @@ router.get('/professionals', isAuth, async (req, res) => {
         const pros = await Professional.find({}, 'name specialization');
         res.json(pros);
     } catch (err) {
-        res.status(500).json({ message: 'Server error' });
+        res.status(500).json({ message: 'Error en el servidor al cargar la lista de profesionales.' });
     }
 });
 
@@ -65,16 +66,16 @@ router.post('/request-professional', isAuth, async (req, res) => {
     try {
         const { proId } = req.body;
         const pro = await Professional.findById(proId);
-        if (!pro) return res.status(404).json({ message: 'Professional not found' });
+        if (!pro) return res.status(404).json({ message: 'Profesional no encontrado' });
 
         if (!pro.pendingRequests.includes(req.userId)) {
             pro.pendingRequests.push(req.userId);
             await pro.save();
         }
 
-        res.json({ message: 'Request sent successfully' });
+        res.json({ message: 'Solicitud enviada con éxito' });
     } catch (err) {
-        res.status(500).json({ message: 'Server error' });
+        res.status(500).json({ message: 'Error en el servidor al enviar la solicitud al profesional.' });
     }
 });
 
@@ -89,9 +90,9 @@ router.post('/log-progress', isAuth, async (req, res) => {
             mealsConsumed
         });
         await newProgress.save();
-        res.status(201).json({ message: 'Progress logged' });
+        res.status(201).json({ message: 'Progreso registrado' });
     } catch (err) {
-        res.status(500).json({ message: 'Server error' });
+        res.status(500).json({ message: 'Error en el servidor al registrar el progreso diario.' });
     }
 });
 

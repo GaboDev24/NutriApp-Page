@@ -7,6 +7,15 @@ document.addEventListener('DOMContentLoaded', async () => {
         return;
     }
 
+    const notification = document.getElementById('notification');
+
+    function showNotification(message, type = 'success') {
+        if (!notification) return;
+        notification.textContent = message;
+        notification.className = `notification ${type}`;
+        setTimeout(() => { notification.className = 'notification'; }, 5000);
+    }
+
     document.getElementById('userName').textContent = user.name;
 
     // Fetch user details
@@ -88,7 +97,12 @@ document.addEventListener('DOMContentLoaded', async () => {
             },
             body: JSON.stringify({ proId })
         });
-        if (response.ok) alert('Solicitud enviada');
+        if (response.ok) {
+            showNotification('Solicitud enviada con éxito');
+        } else {
+            const res = await response.json();
+            showNotification(res.message, 'error');
+        }
     };
 
     const progressForm = document.getElementById('progressForm');
@@ -110,8 +124,10 @@ document.addEventListener('DOMContentLoaded', async () => {
             });
 
             if (response.ok) {
-                alert('Progreso guardado');
-                location.reload();
+                showNotification('¡Progreso guardado con éxito!');
+                setTimeout(() => location.reload(), 1500);
+            } else {
+                showNotification('Error al guardar progreso', 'error');
             }
         });
     }
