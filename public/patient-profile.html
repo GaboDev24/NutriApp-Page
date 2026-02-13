@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Perfil del Paciente - NutriApp Pro</title>
+    <link rel="stylesheet" href="css/style.css">
+    <style>
+        .profile-container {
+            max-width: 1200px;
+            margin: 6rem auto 2rem;
+            padding: 0 1rem;
+            display: grid;
+            grid-template-columns: 1fr 2fr;
+            gap: 2rem;
+        }
+
+        .card {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 1rem;
+            box-shadow: var(--shadow);
+            margin-bottom: 2rem;
+        }
+
+        .chat-box {
+            height: 400px;
+            overflow-y: auto;
+            border: 1px solid #e2e8f0;
+            padding: 1rem;
+            border-radius: 0.5rem;
+            margin-bottom: 1rem;
+            background: #f8fafc;
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .message {
+            padding: 0.5rem 1rem;
+            border-radius: 1rem;
+            max-width: 70%;
+            word-wrap: break-word;
+        }
+
+        .message.sent {
+            align-self: flex-end;
+            background: var(--primary);
+            color: white;
+        }
+
+        .message.received {
+            align-self: flex-start;
+            background: #e2e8f0;
+            color: var(--dark);
+        }
+
+        .chat-input {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .chat-input input {
+            flex: 1;
+            padding: 0.5rem;
+            border: 1px solid #e2e8f0;
+            border-radius: 0.5rem;
+        }
+
+        .meal-entry {
+            display: grid;
+            grid-template-columns: 100px 1fr 100px auto;
+            gap: 1rem;
+            align-items: center;
+            margin-bottom: 0.5rem;
+            padding: 0.5rem;
+            background: #f8fafc;
+            border-radius: 0.5rem;
+        }
+    </style>
+</head>
+
+<body>
+    <header class="scrolled">
+        <div class="container">
+            <nav>
+                <div class="logo">NutriApp Pro</div>
+                <div class="menu-toggle" id="menu-toggle">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </div>
+                <div class="nav-links" id="nav-links">
+                    <a href="pro-dashboard.html" class="btn btn-outline" style="margin-right: 1rem;">Volver</a>
+                    <button id="logoutBtn" class="btn btn-outline" style="border-color: #ef4444; color: #ef4444;">Cerrar
+                        Sesión</button>
+                </div>
+            </nav>
+        </div>
+    </header>
+
+    <div class="profile-container">
+        <!-- Left Column: Patient Info & Chat -->
+        <aside>
+            <div class="card">
+                <h3>Información del Paciente</h3>
+                <div id="patientInfo">
+                    <p>Cargando...</p>
+                </div>
+            </div>
+
+            <div class="card">
+                <h3>Mensajes</h3>
+                <div id="chatBox" class="chat-box">
+                    <!-- Messages will appear here -->
+                </div>
+                <form id="chatForm" class="chat-input">
+                    <input type="text" id="messageInput" placeholder="Escribe un mensaje..." required>
+                    <button type="submit" class="btn btn-primary">Enviar</button>
+                </form>
+            </div>
+        </aside>
+
+        <!-- Right Column: Routine Management -->
+        <main>
+            <div id="notification" class="notification"></div>
+            <div class="card">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                    <h3>Rutina Alimentaria</h3>
+                    <button onclick="addMeal()" class="btn btn-outline">+ Agregar Comida</button>
+                </div>
+
+                <form id="routineForm">
+                    <div id="mealsContainer">
+                        <!-- Meal entries will be added here -->
+                    </div>
+
+                    <div style="margin-top: 1rem;">
+                        <label>Recomendaciones Generales</label>
+                        <textarea id="recommendations" rows="4"
+                            style="width: 100%; border: 1px solid #e2e8f0; border-radius: 0.5rem; padding: 0.5rem;"></textarea>
+                    </div>
+
+                    <div style="margin-top: 1rem; text-align: right;">
+                        <button type="submit" class="btn btn-primary">Guardar Rutina</button>
+                    </div>
+                </form>
+            </div>
+        </main>
+    </div>
+
+    <script src="js/patient-profile.js"></script>
+    <script>
+        const menuToggle = document.getElementById('menu-toggle');
+        const navLinks = document.getElementById('nav-links');
+
+        menuToggle.addEventListener('click', () => {
+            navLinks.classList.toggle('active');
+        });
+    </script>
+</body>
+
+</html>

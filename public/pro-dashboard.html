@@ -51,12 +51,18 @@
         <div class="container">
             <nav>
                 <div class="logo">NutriApp Pro</div>
+                <div class="menu-toggle" id="sidebar-toggle">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </div>
                 <div id="userInfo">Hola, <span id="userName">Cargando...</span></div>
             </nav>
         </div>
     </header>
 
     <div class="container container-dashboard">
+        <div class="sidebar-overlay" id="sidebar-overlay"></div>
         <div class="dashboard-grid">
             <aside class="sidebar">
                 <ul style="list-style: none;">
@@ -92,6 +98,23 @@
         </div>
     </div>
     <script src="js/pro-dashboard.js"></script>
+    <script>
+        const sidebarToggle = document.getElementById('sidebar-toggle');
+        const sidebar = document.querySelector('.sidebar');
+        const overlay = document.getElementById('sidebar-overlay');
+
+        if (sidebarToggle) {
+            sidebarToggle.addEventListener('click', () => {
+                sidebar.classList.toggle('active');
+                overlay.classList.toggle('active');
+            });
+
+            overlay.addEventListener('click', () => {
+                sidebar.classList.remove('active');
+                overlay.classList.remove('active');
+            });
+        }
+    </script>
 </body>
 
 </html>

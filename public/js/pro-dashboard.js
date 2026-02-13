@@ -53,6 +53,10 @@ document.addEventListener('DOMContentLoaded', async () => {
         `).join('');
     };
 
+    window.viewPatient = (id) => {
+        window.location.href = `patient-profile.html?id=${id}`;
+    };
+
     window.handleRequest = async (userId, action) => {
         const response = await fetch('/api/pro/handle-request', {
             method: 'POST',

@@ -36,14 +36,31 @@ document.addEventListener('DOMContentLoaded', async () => {
     };
 
     const renderRoutine = (routine) => {
-        if (!routine || !routine.meals) return;
+        if (!routine) return;
         const list = document.getElementById('routineList');
-        list.innerHTML = routine.meals.map(meal => `
-            <div style="display: flex; justify-content: space-between; padding: 1rem; border-bottom: 1px solid #f1f5f9;">
-                <div><strong>${meal.time}</strong> - ${meal.description}</div>
-                <div>${meal.calories} kcal</div>
-            </div>
-        `).join('');
+
+        let html = '';
+        if (routine.meals && routine.meals.length > 0) {
+            html += routine.meals.map(meal => `
+                <div style="display: flex; justify-content: space-between; padding: 1rem; border-bottom: 1px solid #f1f5f9;">
+                    <div><strong>${meal.time}</strong> - ${meal.description}</div>
+                    <div>${meal.calories} kcal</div>
+                </div>
+            `).join('');
+        } else {
+            html += '<p>No hay comidas asignadas.</p>';
+        }
+
+        if (routine.recommendations) {
+            html += `
+                <div style="margin-top: 1.5rem; padding: 1rem; background: #fff7ed; border: 1px solid #ffedd5; border-radius: 0.5rem;">
+                    <strong>Recomendaciones:</strong>
+                    <p>${routine.recommendations}</p>
+                </div>
+            `;
+        }
+
+        list.innerHTML = html;
     };
 
     // Onboarding flow
@@ -137,6 +154,65 @@ document.addEventListener('DOMContentLoaded', async () => {
         window.location.href = 'index.html';
     });
 
+    // Messaging Logic
+    const chatBox = document.getElementById('chatBox');
+    const chatForm = document.getElementById('chatForm');
+
+    const fetchMessages = async () => {
+        try {
+            const response = await fetch('/api/user/messages', {
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+            const messages = await response.json();
+
+            if (messages.length > 0) {
+                chatBox.innerHTML = messages.map(msg => `
+                    <div style="align-self: ${msg.sender === user.id ? 'flex-end' : 'flex-start'}; 
+                                background: ${msg.sender === user.id ? 'var(--primary)' : '#e2e8f0'}; 
+                                color: ${msg.sender === user.id ? 'white' : 'var(--dark)'}; 
+                                padding: 0.5rem 1rem; 
+                                border-radius: 1rem; 
+                                max-width: 70%; 
+                                margin-bottom: 0.5rem;">
+                        <small style="display:block; opacity: 0.8; font-size: 0.7em;">${new Date(msg.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</small>
+                        ${msg.content}
+                    </div>
+                `).join('');
+                chatBox.scrollTop = chatBox.scrollHeight;
+            }
+        } catch (error) {
+            console.error('Error fetching messages:', error);
+        }
+    };
+
+    if (chatForm) {
+        chatForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const input = document.getElementById('messageInput');
+            const content = input.value.trim();
+            if (!content) return;
+
+            try {
+                const response = await fetch('/api/user/message', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({ content })
+                });
+
+                if (response.ok) {
+                    input.value = '';
+                    fetchMessages(); // Refresh messages
+                }
+            } catch (error) {
+                console.error('Error sending message:', error);
+            }
+        });
+    }
+
     fetchUser();
     fetchPros();
+    fetchMessages();
 });

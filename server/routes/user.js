@@ -5,6 +5,7 @@ const User = require('../models/User');
 const Professional = require('../models/Professional');
 const Routine = require('../models/Routine');
 const UserProgress = require('../models/Progress');
+const Message = require('../models/Message');
 
 // Get Profile
 router.get('/profile', isAuth, async (req, res) => {
@@ -93,6 +94,52 @@ router.post('/log-progress', isAuth, async (req, res) => {
         res.status(201).json({ message: 'Progreso registrado' });
     } catch (err) {
         res.status(500).json({ message: 'Error en el servidor al registrar el progreso diario.' });
+    }
+});
+
+// Get Messages
+router.get('/messages', isAuth, async (req, res) => {
+    try {
+        const user = await User.findById(req.userId);
+        if (!user.assignedProfessional) {
+            return res.json([]);
+        }
+
+        const messages = await Message.find({
+            $or: [
+                { sender: req.userId, recipient: user.assignedProfessional },
+                { sender: user.assignedProfessional, recipient: req.userId }
+            ]
+        }).sort({ createdAt: 1 });
+
+        res.json(messages);
+    } catch (err) {
+        res.status(500).json({ message: 'Error al obtener mensajes' });
+    }
+});
+
+// Send Message to Professional
+router.post('/message', isAuth, async (req, res) => {
+    try {
+        const { content } = req.body;
+        const user = await User.findById(req.userId);
+
+        if (!user.assignedProfessional) {
+            return res.status(400).json({ message: 'No tienes un profesional asignado' });
+        }
+
+        const message = new Message({
+            sender: req.userId,
+            senderModel: 'User',
+            recipient: user.assignedProfessional,
+            recipientModel: 'Professional',
+            content
+        });
+
+        await message.save();
+        res.json({ message: 'Mensaje enviado', data: message });
+    } catch (err) {
+        res.status(500).json({ message: 'Error al enviar mensaje' });
     }
 });
 

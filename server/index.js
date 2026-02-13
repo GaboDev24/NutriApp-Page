@@ -45,7 +45,7 @@ const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
     console.log(`\n=========================================`);
     console.log(`  NUTRIAPP SERVER v2.0 - CARGADO        `);
-    console.log(`  Puerto: ${PORT}                      `);
+    console.log(`  Puerto: http://localhost:${PORT}                      `);
     console.log(`  Hora: ${new Date().toLocaleTimeString()} `);
     console.log(`=========================================\n`);
 });

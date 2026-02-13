@@ -385,8 +385,9 @@ footer {
         display: flex;
     }
 
+    /* General Nav Links (Index) */
     .nav-links {
-        position: absolute;
+        position: fixed;
         top: 0;
         right: -100%;
         width: 280px;
@@ -395,13 +396,88 @@ footer {
         flex-direction: column;
         padding: 6rem 2rem;
         gap: 1.5rem;
-        box-shadow: var(--shadow);
+        box-shadow: -5px 0 15px rgba(0, 0, 0, 0.1);
         transition: 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
         align-items: flex-start;
+        z-index: 999;
     }
 
     .nav-links.active {
         right: 0;
+    }
+
+    /* Dashboard Layout */
+    .dashboard-grid {
+        grid-template-columns: 1fr;
+        margin-top: 4rem;
+    }
+
+    /* Dashboard Sidebar */
+    .sidebar {
+        position: fixed;
+        top: 0;
+        left: -100%;
+        width: 280px;
+        height: 100vh;
+        background: white;
+        z-index: 1002;
+        transition: 0.3s ease;
+        box-shadow: 5px 0 15px rgba(0, 0, 0, 0.1);
+        overflow-y: auto;
+    }
+
+    .sidebar.active {
+        left: 0;
+    }
+
+    /* Overlay for sidebar */
+    .sidebar-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.5);
+        z-index: 1001;
+        opacity: 0;
+        visibility: hidden;
+        transition: 0.3s;
+        z-index: 998;
+        /* Below sidebar/menu but above content */
+    }
+
+    .sidebar-overlay.active {
+        opacity: 1;
+        visibility: visible;
+    }
+
+    /* Additional Mobile Fixes */
+    .dashboard-grid {
+        display: block;
+        /* Stack sidebar and main */
+        margin-top: 6rem;
+        /* More space for header */
+    }
+
+    .sidebar {
+        z-index: 1001;
+        /* Above header */
+    }
+
+    .menu-toggle {
+        z-index: 1002;
+        /* Always clickable */
+    }
+
+    header {
+        z-index: 1000;
+    }
+
+    /* Profile Container */
+    .profile-container {
+        grid-template-columns: 1fr;
+        margin-top: 5rem;
+        gap: 1.5rem;
     }
 
     .hero-container {
@@ -425,5 +501,10 @@ footer {
 
     section {
         padding: 4rem 0;
+    }
+
+    /* Mobile Menu Buttons Alignment */
+    .container nav {
+        position: relative;
     }
 }
