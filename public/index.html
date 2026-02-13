@@ -130,12 +130,22 @@
             }
         });
 
-        // Mobile menu toggle
+        // Mobile menu toggle with animation
         const mobMenu = document.getElementById('mobile-menu');
         const navList = document.getElementById('nav-list');
 
         mobMenu.addEventListener('click', () => {
             navList.classList.toggle('active');
+            mobMenu.classList.toggle('active');
+        });
+
+        // Close menu when clicking on a link
+        const navLinks = navList.querySelectorAll('a');
+        navLinks.forEach(link => {
+            link.addEventListener('click', () => {
+                navList.classList.remove('active');
+                mobMenu.classList.remove('active');
+            });
         });
 
         // Fetch dynamic professionals
@@ -154,7 +164,8 @@
                     <div class="pro-card">
                         <div class="pro-info">
                             <h3>${pro.name}</h3>
-                            <p>${pro.specialization || 'Nutricionista General'}</p>
+                            <p style="color: var(--primary); font-weight: 600; margin-bottom: 0.5rem;">${pro.specialization || 'Nutricionista General'}</p>
+                            ${pro.description ? `<p style="color: var(--text-muted); margin-bottom: 1rem;">${pro.description}</p>` : ''}
                             <a href="signup.html" class="btn btn-outline" style="margin-top: 1rem;">Solicitar Atención</a>
                         </div>
                     </div>

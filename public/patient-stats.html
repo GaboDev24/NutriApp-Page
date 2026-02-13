@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NutriApp - Estadísticas del Paciente</title>
+    <link rel="stylesheet" href="css/style.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+</head>
+
+<body>
+    <header class="scrolled">
+        <div class="container">
+            <nav>
+                <div class="logo">NutriApp Pro</div>
+                <div id="userInfo">
+                    <a href="pro-dashboard.html" class="btn btn-outline">← Volver al Dashboard</a>
+                </div>
+            </nav>
+        </div>
+    </header>
+
+    <div class="container" style="margin-top: 6rem; margin-bottom: 4rem;">
+        <div id="notification" class="notification"></div>
+
+        <h2 id="patientName" style="margin-bottom: 2rem;">Cargando...</h2>
+
+        <div class="stats-grid" id="statsGrid">
+            <div class="stat-card">
+                <div class="stat-label">Peso Actual</div>
+                <div class="stat-value"><span id="currentWeight">--</span> kg</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">Peso Inicial</div>
+                <div class="stat-value"><span id="initialWeight">--</span> kg</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">Cambio Total</div>
+                <div class="stat-value" id="weightChange">-- kg</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">Altura</div>
+                <div class="stat-value"><span id="height">--</span> cm</div>
+            </div>
+        </div>
+
+        <div class="chart-container">
+            <h3 style="margin-bottom: 1.5rem;">Evolución del Peso</h3>
+            <canvas id="weightChart"></canvas>
+        </div>
+
+        <div class="card">
+            <h3 style="margin-bottom: 1.5rem;">Historial de Progreso</h3>
+            <div id="progressHistory">
+                <p style="text-align: center; color: var(--text-muted);">Cargando historial...</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const urlParams = new URLSearchParams(window.location.search);
+        const patientId = urlParams.get('id');
+        const token = localStorage.getItem('token');
+        const notification = document.getElementById('notification');
+
+        function showNotification(message, type = 'error') {
+            notification.textContent = message;
+            notification.className = `notification ${type}`;
+            setTimeout(() => { notification.className = 'notification'; }, 4000);
+        }
+
+        if (!token || !patientId) {
+            window.location.href = 'pro-dashboard.html';
+        }
+
+        async function loadPatientStats() {
+            try {
+                const response = await fetch(`/api/pro/patient/${patientId}/stats`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+
+                if (!response.ok) {
+                    throw new Error('Error al cargar estadísticas');
+                }
+
+                const stats = await response.json();
+
+                // Display stats
+                document.getElementById('patientName').textContent = `Estadísticas del Paciente`;
+                document.getElementById('currentWeight').textContent = stats.currentWeight || '--';
+                document.getElementById('initialWeight').textContent = stats.initialWeight || '--';
+                document.getElementById('height').textContent = stats.height || '--';
+
+                const weightChange = stats.weightChange || 0;
+                const weightChangeEl = document.getElementById('weightChange');
+                weightChangeEl.textContent = `${weightChange >= 0 ? '+' : ''}${weightChange.toFixed(1)} kg`;
+                weightChangeEl.style.color = weightChange < 0 ? '#10b981' : '#ef4444';
+
+                // Create chart
+                if (stats.progressHistory && stats.progressHistory.length > 0) {
+                    createWeightChart(stats.progressHistory);
+                    displayProgressHistory(stats.progressHistory);
+                } else {
+                    document.getElementById('progressHistory').innerHTML =
+                        '<p style="text-align: center; color: var(--text-muted);">No hay registros de progreso aún.</p>';
+                }
+            } catch (err) {
+                console.error(err);
+                showNotification('Error al cargar estadísticas del paciente');
+            }
+        }
+
+        function createWeightChart(history) {
+            const ctx = document.getElementById('weightChart').getContext('2d');
+
+            const labels = history.map(entry => {
+                const date = new Date(entry.date);
+                return date.toLocaleDateString('es-ES', { day: '2-digit', month: 'short' });
+            });
+
+            const weights = history.map(entry => entry.weight);
+
+            new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Peso (kg)',
+                        data: weights,
+                        borderColor: '#10b981',
+                        backgroundColor: 'rgba(16, 185, 129, 0.1)',
+                        tension: 0.4,
+                        fill: true
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: false
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: false,
+                            ticks: {
+                                callback: function (value) {
+                                    return value + ' kg';
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        function displayProgressHistory(history) {
+            const container = document.getElementById('progressHistory');
+
+            if (history.length === 0) {
+                container.innerHTML = '<p style="text-align: center; color: var(--text-muted);">No hay registros de progreso.</p>';
+                return;
+            }
+
+            container.innerHTML = history.reverse().map(entry => {
+                const date = new Date(entry.date);
+                const formattedDate = date.toLocaleDateString('es-ES', {
+                    year: 'numeric',
+                    month: 'long',
+                    day: 'numeric'
+                });
+
+                return `
+                    <div class="progress-entry">
+                        <div class="progress-date">${formattedDate}</div>
+                        <div><strong>Peso:</strong> ${entry.weight} kg</div>
+                        ${entry.notes ? `<div style="margin-top: 0.5rem; color: var(--text-muted);"><strong>Notas:</strong> ${entry.notes}</div>` : ''}
+                    </div>
+                `;
+            }).join('');
+        }
+
+        loadPatientStats();
+    </script>
+</body>
+
+</html>

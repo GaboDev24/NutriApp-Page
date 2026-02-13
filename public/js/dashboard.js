@@ -131,7 +131,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                 notes: progressForm.dayNotes.value
             };
 
-            const response = await fetch('/api/user/log-progress', {
+            const response = await fetch('/api/user/progress', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

@@ -338,6 +338,113 @@ section {
     font-weight: 600;
 }
 
+/* Dashboard Base Styles */
+.dashboard-grid {
+    display: grid;
+    grid-template-columns: 250px 1fr;
+    gap: 2rem;
+    margin-top: 5rem;
+    min-height: calc(100vh - 5rem);
+}
+
+.sidebar {
+    padding: 2rem;
+    border-right: 1px solid #e2e8f0;
+}
+
+.main-content {
+    padding: 2rem;
+}
+
+.card {
+    background: white;
+    padding: 1.5rem;
+    border-radius: 1rem;
+    box-shadow: var(--shadow);
+    margin-bottom: 2rem;
+}
+
+.patient-list {
+    list-style: none;
+}
+
+.patient-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem;
+    border-bottom: 1px solid #f1f5f9;
+}
+
+.metric-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+}
+
+.metric-card {
+    text-align: center;
+    padding: 2rem;
+}
+
+.metric-value {
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: var(--primary);
+}
+
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+}
+
+.stat-card {
+    background: white;
+    padding: 2rem;
+    border-radius: 1rem;
+    box-shadow: var(--shadow);
+    text-align: center;
+}
+
+.stat-value {
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: var(--primary);
+    margin: 0.5rem 0;
+}
+
+.stat-label {
+    color: var(--text-muted);
+    font-size: 0.9rem;
+}
+
+.chart-container {
+    position: relative;
+    height: 400px;
+    background: white;
+    padding: 2rem;
+    border-radius: 1rem;
+    box-shadow: var(--shadow);
+    margin-bottom: 2rem;
+}
+
+.progress-entry {
+    padding: 1rem;
+    border-left: 3px solid var(--primary);
+    margin-bottom: 1rem;
+    background: white;
+    border-radius: 0.5rem;
+}
+
+.progress-date {
+    font-weight: 600;
+    color: var(--primary);
+    margin-bottom: 0.5rem;
+}
+
 /* Mobile Menu Toggle Styles */
 .menu-toggle {
     display: none;
@@ -345,6 +452,7 @@ section {
     flex-direction: column;
     gap: 5px;
     z-index: 1001;
+    position: relative;
 }
 
 .menu-toggle span {
@@ -353,6 +461,19 @@ section {
     background: var(--secondary);
     border-radius: 3px;
     transition: 0.3s;
+}
+
+/* Hamburger animation when active */
+.menu-toggle.active span:nth-child(1) {
+    transform: rotate(45deg) translate(5px, 5px);
+}
+
+.menu-toggle.active span:nth-child(2) {
+    opacity: 0;
+}
+
+.menu-toggle.active span:nth-child(3) {
+    transform: rotate(-45deg) translate(7px, -6px);
 }
 
 /* Footer */
@@ -370,6 +491,7 @@ footer {
     margin-bottom: 1rem;
 }
 
+/* Tablet Breakpoint */
 @media (max-width: 992px) {
     .nav-links {
         gap: 1rem;
@@ -378,8 +500,17 @@ footer {
     .hero h1 {
         font-size: 3rem;
     }
+
+    .section-header h2 {
+        font-size: 2rem;
+    }
+
+    .container {
+        padding: 0 1.25rem;
+    }
 }
 
+/* Mobile and Small Tablet */
 @media (max-width: 768px) {
     .menu-toggle {
         display: flex;
@@ -406,10 +537,30 @@ footer {
         right: 0;
     }
 
+    /* Overlay for nav menu */
+    .nav-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.5);
+        opacity: 0;
+        visibility: hidden;
+        transition: 0.3s;
+        z-index: 998;
+    }
+
+    .nav-overlay.active {
+        opacity: 1;
+        visibility: visible;
+    }
+
     /* Dashboard Layout */
     .dashboard-grid {
         grid-template-columns: 1fr;
         margin-top: 4rem;
+        display: block;
     }
 
     /* Dashboard Sidebar */
@@ -424,6 +575,7 @@ footer {
         transition: 0.3s ease;
         box-shadow: 5px 0 15px rgba(0, 0, 0, 0.1);
         overflow-y: auto;
+        padding-top: 5rem;
     }
 
     .sidebar.active {
@@ -438,35 +590,15 @@ footer {
         width: 100%;
         height: 100%;
         background: rgba(0, 0, 0, 0.5);
-        z-index: 1001;
+        z-index: 998;
         opacity: 0;
         visibility: hidden;
         transition: 0.3s;
-        z-index: 998;
-        /* Below sidebar/menu but above content */
     }
 
     .sidebar-overlay.active {
         opacity: 1;
         visibility: visible;
-    }
-
-    /* Additional Mobile Fixes */
-    .dashboard-grid {
-        display: block;
-        /* Stack sidebar and main */
-        margin-top: 6rem;
-        /* More space for header */
-    }
-
-    .sidebar {
-        z-index: 1001;
-        /* Above header */
-    }
-
-    .menu-toggle {
-        z-index: 1002;
-        /* Always clickable */
     }
 
     header {
@@ -492,19 +624,137 @@ footer {
     }
 
     .hero h1 {
-        font-size: 2.75rem;
+        font-size: 2.5rem;
+    }
+
+    .hero p {
+        font-size: 1.1rem;
     }
 
     .features-grid {
         grid-template-columns: 1fr;
+        gap: 1.5rem;
     }
 
     section {
-        padding: 4rem 0;
+        padding: 3rem 0;
     }
 
-    /* Mobile Menu Buttons Alignment */
-    .container nav {
-        position: relative;
+    /* Larger touch targets for mobile */
+    .btn {
+        min-height: 44px;
+        padding: 0.875rem 1.75rem;
+    }
+
+    /* Better card spacing on mobile */
+    .card {
+        padding: 1.25rem;
+    }
+
+    .feature-card {
+        padding: 2rem;
+    }
+
+    /* Form improvements for mobile */
+    .form-input {
+        font-size: 16px;
+        /* Prevents zoom on iOS */
+        padding: 0.875rem 1rem;
+    }
+
+    /* Main content padding */
+    .main-content {
+        padding: 1.5rem;
+    }
+}
+
+/* Small Mobile Phones */
+@media (max-width: 480px) {
+    .hero h1 {
+        font-size: 2rem;
+        line-height: 1.2;
+    }
+
+    .hero p {
+        font-size: 1rem;
+    }
+
+    .section-header h2 {
+        font-size: 1.75rem;
+    }
+
+    .nav-links,
+    .sidebar {
+        width: 100%;
+    }
+
+    .container {
+        padding: 0 1rem;
+    }
+
+    .metric-grid {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+    }
+
+    .btn {
+        width: 100%;
+        padding: 1rem;
+    }
+
+    /* Stack buttons vertically on very small screens */
+    .hero-content>div {
+        flex-direction: column;
+        width: 100%;
+    }
+
+    .hero-content>div .btn {
+        width: 100%;
+    }
+}
+
+/* Dashboard specific mobile fixes */
+@media (max-width: 768px) {
+    .patient-item {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 1rem;
+    }
+
+    .patient-item>div {
+        width: 100%;
+    }
+
+    .patient-item .btn {
+        width: 100%;
+        margin-bottom: 0.5rem;
+        display: block;
+        text-align: center;
+    }
+
+    /* Center align metrics on mobile */
+    .metric-grid,
+    .stats-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .chart-container {
+        height: 300px;
+        padding: 1rem;
+    }
+
+    .btn-outline {
+        width: 100%;
+        text-align: center;
+        justify-content: center;
+    }
+
+    .dashboard-grid {
+        margin-top: 4rem;
+        gap: 1rem;
+    }
+
+    .main-content {
+        padding: 1rem;
     }
 }

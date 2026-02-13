@@ -133,4 +133,94 @@ router.post('/patient/:id/message', isAuth, async (req, res) => {
     }
 });
 
+// Update Professional Profile
+router.put('/profile', isAuth, async (req, res) => {
+    try {
+        const { name, specialization, description, bio, experience, education } = req.body;
+        const pro = await Professional.findById(req.userId);
+
+        if (!pro) {
+            return res.status(404).json({ message: 'Profesional no encontrado' });
+        }
+
+        if (name) pro.name = name;
+        if (specialization) pro.specialization = specialization;
+        if (description !== undefined) pro.description = description;
+        if (bio !== undefined) pro.bio = bio;
+        if (experience !== undefined) pro.experience = experience;
+        if (education !== undefined) pro.education = education;
+
+        await pro.save();
+        res.json({ message: 'Perfil actualizado exitosamente', professional: pro });
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ message: 'Error al actualizar perfil' });
+    }
+});
+
+// Get Patient Statistics
+router.get('/patient/:id/stats', isAuth, async (req, res) => {
+    try {
+        const patientId = req.params.id;
+        const Progress = require('../models/Progress');
+
+        // Check if patient belongs to this professional
+        const pro = await Professional.findById(req.userId);
+        if (!pro.patients.includes(patientId)) {
+            return res.status(403).json({ message: 'No tienes permiso para ver este paciente' });
+        }
+
+        const patient = await User.findById(patientId).select('-password');
+        if (!patient) {
+            return res.status(404).json({ message: 'Paciente no encontrado' });
+        }
+
+        // Get progress history
+        const progressHistory = await Progress.find({ userId: patientId })
+            .sort({ date: -1 })
+            .limit(30); // Last 30 entries
+
+        // Calculate statistics
+        const stats = {
+            currentWeight: patient.weight,
+            initialWeight: progressHistory.length > 0 ? progressHistory[progressHistory.length - 1].weight : patient.weight,
+            height: patient.height,
+            lifestyle: patient.lifestyle,
+            totalEntries: progressHistory.length,
+            progressHistory: progressHistory.reverse() // Chronological order
+        };
+
+        if (stats.initialWeight && stats.currentWeight) {
+            stats.weightChange = stats.currentWeight - stats.initialWeight;
+        }
+
+        res.json(stats);
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ message: 'Error al obtener estadísticas' });
+    }
+});
+
+// Get Patient Progress History
+router.get('/patient/:id/progress', isAuth, async (req, res) => {
+    try {
+        const patientId = req.params.id;
+        const Progress = require('../models/Progress');
+
+        // Check if patient belongs to this professional
+        const pro = await Professional.findById(req.userId);
+        if (!pro.patients.includes(patientId)) {
+            return res.status(403).json({ message: 'No tienes permiso para ver este paciente' });
+        }
+
+        const progress = await Progress.find({ userId: patientId })
+            .sort({ date: -1 });
+
+        res.json(progress);
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ message: 'Error al obtener progreso' });
+    }
+});
+
 module.exports = router;

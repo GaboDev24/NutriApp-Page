@@ -143,4 +143,45 @@ router.post('/message', isAuth, async (req, res) => {
     }
 });
 
+// Save Daily Progress (New simplified endpoint)
+router.post('/progress', isAuth, async (req, res) => {
+    try {
+        const { weight, notes } = req.body;
+
+        if (!weight) {
+            return res.status(400).json({ message: 'El peso es requerido' });
+        }
+
+        const newProgress = new UserProgress({
+            userId: req.userId,
+            weight,
+            notes: notes || null
+        });
+
+        await newProgress.save();
+
+        // Update user's current weight
+        await User.findByIdAndUpdate(req.userId, { weight });
+
+        res.status(201).json({ message: 'Progreso registrado exitosamente', progress: newProgress });
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ message: 'Error al registrar el progreso' });
+    }
+});
+
+// Get User Progress History
+router.get('/progress', isAuth, async (req, res) => {
+    try {
+        const progress = await UserProgress.find({ userId: req.userId })
+            .sort({ date: -1 })
+            .limit(30); // Last 30 entries
+
+        res.json(progress);
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ message: 'Error al obtener historial de progreso' });
+    }
+});
+
 module.exports = router;

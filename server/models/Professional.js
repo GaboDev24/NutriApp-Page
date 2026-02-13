@@ -10,6 +10,10 @@ const professionalSchema = new mongoose.Schema({
     resetPasswordToken: { type: String, default: null },
     resetPasswordExpires: { type: Date, default: null },
     specialization: { type: String, default: null },
+    description: { type: String, default: null }, // Short description for index page
+    bio: { type: String, default: null }, // Extended biography
+    experience: { type: String, default: null }, // Years of experience
+    education: { type: String, default: null }, // Academic background
     patients: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
     pendingRequests: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
     createdAt: { type: Date, default: Date.now }

@@ -6,44 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>NutriApp - Panel Profesional</title>
     <link rel="stylesheet" href="css/style.css">
-    <style>
-        .dashboard-grid {
-            display: grid;
-            grid-template-columns: 250px 1fr;
-            gap: 2rem;
-            margin-top: 5rem;
-            min-height: calc(100vh - 5rem);
-        }
 
-        .sidebar {
-            padding: 2rem;
-            border-right: 1px solid #e2e8f0;
-        }
-
-        .main-content {
-            padding: 2rem;
-        }
-
-        .card {
-            background: white;
-            padding: 1.5rem;
-            border-radius: 1rem;
-            box-shadow: var(--shadow);
-            margin-bottom: 2rem;
-        }
-
-        .patient-list {
-            list-style: none;
-        }
-
-        .patient-item {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 1rem;
-            border-bottom: 1px solid #f1f5f9;
-        }
-    </style>
 </head>
 
 <body>
@@ -66,10 +29,13 @@
         <div class="dashboard-grid">
             <aside class="sidebar">
                 <ul style="list-style: none;">
-                    <li style="margin-bottom: 1rem;"><a href="#" class="btn btn-primary" style="width: 100%;">Mis
+                    <li style="margin-bottom: 1rem;"><a href="#" class="btn btn-primary" style="width: 100%;"
+                            onclick="showSection('activePatients')">Mis
                             Pacientes</a></li>
-                    <li style="margin-bottom: 1rem;"><a href="#" class="btn btn-outline"
-                            style="width: 100%;">Solicitudes</a></li>
+                    <li style="margin-bottom: 1rem;"><a href="#" class="btn btn-outline" style="width: 100%;"
+                            onclick="showSection('pendingRequests')">Solicitudes</a></li>
+                    <li style="margin-bottom: 1rem;"><a href="#" class="btn btn-outline" style="width: 100%;"
+                            onclick="showSection('profileSection')">Editar Perfil</a></li>
                     <li style="margin-top: 5rem;"><button id="logoutBtn" class="btn btn-outline"
                             style="width: 100%; border-color: #ef4444; color: #ef4444;">Cerrar Sesión</button></li>
                 </ul>
@@ -77,6 +43,47 @@
 
             <main class="main-content">
                 <div id="notification" class="notification"></div>
+
+                <!-- Profile Edit Section -->
+                <section id="profileSection" style="display: none;">
+                    <h3>Editar Mi Perfil</h3>
+                    <div class="card">
+                        <form id="profileForm">
+                            <div class="form-group">
+                                <label>Nombre</label>
+                                <input type="text" id="proName" class="form-input" required>
+                            </div>
+                            <div class="form-group">
+                                <label>Especialización</label>
+                                <input type="text" id="proSpecialization" class="form-input"
+                                    placeholder="ej: Nutrición Deportiva">
+                            </div>
+                            <div class="form-group">
+                                <label>Descripción Corta (se muestra en la página principal)</label>
+                                <textarea id="proDescription" class="form-input" style="height: 80px;"
+                                    placeholder="Descripción breve que verán los visitantes"></textarea>
+                            </div>
+                            <div class="form-group">
+                                <label>Biografía Extendida</label>
+                                <textarea id="proBio" class="form-input" style="height: 120px;"
+                                    placeholder="Cuéntanos más sobre tu experiencia y enfoque"></textarea>
+                            </div>
+                            <div class="form-group">
+                                <label>Años de Experiencia</label>
+                                <input type="text" id="proExperience" class="form-input" placeholder="ej: 5 años">
+                            </div>
+                            <div class="form-group">
+                                <label>Formación Académica</label>
+                                <textarea id="proEducation" class="form-input" style="height: 80px;"
+                                    placeholder="ej: Licenciado en Nutrición - Universidad XYZ"></textarea>
+                            </div>
+                            <button type="submit" class="btn btn-primary">Guardar Cambios</button>
+                            <button type="button" class="btn btn-outline"
+                                onclick="showSection('activePatients')">Cancelar</button>
+                        </form>
+                    </div>
+                </section>
+
                 <section id="pendingRequests">
                     <h3>Solicitudes Pendientes</h3>
                     <div class="card">
