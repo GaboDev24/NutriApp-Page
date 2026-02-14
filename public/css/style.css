@@ -491,6 +491,78 @@ footer {
     margin-bottom: 1rem;
 }
 
+/* Patient Profile Styles */
+.profile-container {
+    max-width: 1200px;
+    margin: 6rem auto 2rem;
+    padding: 0 1rem;
+    display: grid;
+    grid-template-columns: 1fr 2fr;
+    gap: 2rem;
+}
+
+.chat-box {
+    height: 400px;
+    overflow-y: auto;
+    border: 1px solid #e2e8f0;
+    padding: 1rem;
+    border-radius: 0.5rem;
+    margin-bottom: 1rem;
+    background: #f8fafc;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.message {
+    padding: 0.5rem 1rem;
+    border-radius: 1rem;
+    max-width: 70%;
+    word-wrap: break-word;
+}
+
+.message.sent {
+    align-self: flex-end;
+    background: var(--primary);
+    color: white;
+}
+
+.message.received {
+    align-self: flex-start;
+    background: #e2e8f0;
+    color: var(--dark);
+}
+
+.chat-input {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.chat-input input {
+    flex: 1;
+    padding: 0.5rem;
+    border: 1px solid #e2e8f0;
+    border-radius: 0.5rem;
+}
+
+.meal-entry {
+    display: grid;
+    grid-template-columns: 100px 1fr 100px auto;
+    gap: 1rem;
+    align-items: center;
+    margin-bottom: 0.5rem;
+    padding: 1rem;
+    background: #f8fafc;
+    border-radius: 0.5rem;
+    border: 1px solid #e2e8f0;
+    transition: all 0.3s ease;
+}
+
+.meal-entry:hover {
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    transform: translateY(-2px);
+}
+
 /* Tablet Breakpoint */
 @media (max-width: 992px) {
     .nav-links {
@@ -610,6 +682,40 @@ footer {
         grid-template-columns: 1fr;
         margin-top: 5rem;
         gap: 1.5rem;
+        padding: 0 1rem;
+    }
+
+    .meal-entry {
+        grid-template-columns: 1fr;
+        gap: 0.75rem;
+        text-align: left;
+        position: relative;
+        padding-bottom: 3.5rem;
+        /* Make room for button */
+    }
+
+    .meal-entry input[type="time"] {
+        width: 100%;
+        padding: 0.5rem;
+        border: 1px solid #e2e8f0;
+        border-radius: 0.375rem;
+    }
+
+    .meal-entry input[type="text"],
+    .meal-entry input[type="number"] {
+        width: 100%;
+    }
+
+    .meal-entry button {
+        position: absolute;
+        bottom: 1rem;
+        right: 1rem;
+        width: auto !important;
+        padding: 0.5rem 1rem;
+        background-color: #ef4444;
+        color: white;
+        border-radius: 0.375rem;
+        font-size: 0.875rem;
     }
 
     .hero-container {
