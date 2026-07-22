@@ -1,8 +1,8 @@
 require('dotenv').config();
 const express = require('express');
-const mongoose = require('mongoose');
 const cors = require('cors');
 const path = require('path');
+const initDatabase = require('./dbInit');
 
 const app = express();
 
@@ -15,26 +15,25 @@ app.use((req, res, next) => {
 });
 app.use(express.static(path.join(__dirname, '../public')));
 
-// Database Connection
-mongoose.connect(process.env.MONGODB_URI)
-    .then(() => console.log('Conectado a MongoDB'))
-    .catch(err => console.error('Error de conexión a MongoDB:', err));
+// Inicializar esquemas de base de datos SQL SpiderWeb
+initDatabase().catch(err => console.error('[DB INIT FATAL]', err));
 
-// Routes
+// Rutas API
 app.get('/api/health', (req, res) => {
-    res.json({ status: 'ok', message: 'NutriApp API en funcionamiento' });
+    res.json({ status: 'ok', message: 'NutriApp API (SpiderWeb SQL Engine) en funcionamiento' });
 });
 
 const authRoutes = require('./routes/auth');
 const userRoutes = require('./routes/user');
 const proRoutes = require('./routes/professional');
 const publicRoutes = require('./routes/public');
+
 app.use('/api/auth', authRoutes);
 app.use('/api/user', userRoutes);
 app.use('/api/pro', proRoutes);
 app.use('/api/public', publicRoutes);
 
-// For production (Vercel)
+// Producción (Vercel)
 if (process.env.NODE_ENV === 'production') {
     app.get(/(.*)/, (req, res) => {
         res.sendFile(path.join(__dirname, '../public/index.html'));
@@ -44,10 +43,10 @@ if (process.env.NODE_ENV === 'production') {
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
     console.log(`\n=========================================`);
-    console.log(`  NUTRIAPP SERVER v2.0 - CARGADO        `);
-    console.log(`  Puerto: http://localhost:${PORT}                      `);
+    console.log(`  NUTRIAPP SERVER v2.0 - SPIDERWEB SQL   `);
+    console.log(`  Puerto: http://localhost:${PORT}      `);
     console.log(`  Hora: ${new Date().toLocaleTimeString()} `);
     console.log(`=========================================\n`);
 });
 
-module.exports = app; // Export for Vercel
+module.exports = app;

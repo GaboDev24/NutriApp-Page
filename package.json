@@ -1,13 +1,18 @@
 {
   "name": "nutriapp-page",
-  "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
+  "version": "2.0.0",
+  "description": "NutriApp - Plataforma de nutrición con SpiderWeb API (SQL, Storage, SpiderIA)",
+  "main": "server/index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "node -e \"require('./api-client')\"",
     "start": "node server/index.js"
   },
-  "keywords": [],
+  "keywords": [
+    "nutrition",
+    "spiderweb",
+    "sql",
+    "express"
+  ],
   "author": "",
   "license": "ISC",
   "dependencies": {
@@ -17,7 +22,6 @@
     "express": "^5.2.1",
     "express-validator": "^7.3.1",
     "jsonwebtoken": "^9.0.3",
-    "mongoose": "^9.2.1",
     "nodemailer": "^8.0.1"
   }
 }
