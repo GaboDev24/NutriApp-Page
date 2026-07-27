@@ -18,7 +18,14 @@ async function initDatabase() {
             role VARCHAR(50) DEFAULT 'user',
             height FLOAT NULL,
             weight FLOAT NULL,
+            age INT NULL,
+            gender VARCHAR(50) NULL,
+            goal VARCHAR(100) NULL,
             lifestyle VARCHAR(255) NULL,
+            allergies TEXT NULL,
+            medical_conditions TEXT NULL,
+            phone VARCHAR(50) NULL,
+            profile_picture TEXT NULL,
             assignedProfessional INT NULL,
             routine_id INT NULL,
             verificationToken VARCHAR(255) NULL,
@@ -77,6 +84,26 @@ async function initDatabase() {
             await sdk.sql.query(null, query);
         } catch (err) {
             console.error('[DB INIT Error]', err.message);
+        }
+    }
+
+    // Safe column additions for pre-existing databases
+    const alterQueries = [
+        `ALTER TABLE users ADD COLUMN IF NOT EXISTS age INT NULL`,
+        `ALTER TABLE users ADD COLUMN IF NOT EXISTS gender VARCHAR(50) NULL`,
+        `ALTER TABLE users ADD COLUMN IF NOT EXISTS goal VARCHAR(100) NULL`,
+        `ALTER TABLE users ADD COLUMN IF NOT EXISTS allergies TEXT NULL`,
+        `ALTER TABLE users ADD COLUMN IF NOT EXISTS medical_conditions TEXT NULL`,
+        `ALTER TABLE users ADD COLUMN IF NOT EXISTS phone VARCHAR(50) NULL`,
+        `ALTER TABLE users ADD COLUMN IF NOT EXISTS profile_picture TEXT NULL`,
+        `ALTER TABLE professionals ADD COLUMN IF NOT EXISTS profile_picture TEXT NULL`,
+    ];
+
+    for (const altQuery of alterQueries) {
+        try {
+            await sdk.sql.query(null, altQuery);
+        } catch (err) {
+            // Column may already exist, ignore error
         }
     }
 

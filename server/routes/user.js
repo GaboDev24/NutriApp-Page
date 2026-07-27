@@ -1,7 +1,10 @@
 const express = require('express');
 const router = express.Router();
+const path = require('path');
+const fs = require('fs');
 const isAuth = require('../middleware/auth');
 const { query, escapeSql } = require('../dbHelper');
+const { upload } = require('../middleware/upload');
 
 // Get Profile
 router.get('/profile', isAuth, async (req, res) => {
@@ -30,41 +33,56 @@ router.get('/profile', isAuth, async (req, res) => {
     }
 });
 
-// Setup Routine Onboarding
+// Setup / Update Patient Profile (NO auto-routine generation)
+router.post('/setup-profile', isAuth, async (req, res) => {
+    try {
+        const { height, weight, age, gender, goal, lifestyle, allergies, medical_conditions, phone, profile_picture } = req.body;
+
+        const setClauses = [];
+        if (height !== undefined) setClauses.push(`height = ${escapeSql(height)}`);
+        if (weight !== undefined) setClauses.push(`weight = ${escapeSql(weight)}`);
+        if (age !== undefined) setClauses.push(`age = ${escapeSql(age)}`);
+        if (gender !== undefined) setClauses.push(`gender = ${escapeSql(gender)}`);
+        if (goal !== undefined) setClauses.push(`goal = ${escapeSql(goal)}`);
+        if (lifestyle !== undefined) setClauses.push(`lifestyle = ${escapeSql(lifestyle)}`);
+        if (allergies !== undefined) setClauses.push(`allergies = ${escapeSql(allergies)}`);
+        if (medical_conditions !== undefined) setClauses.push(`medical_conditions = ${escapeSql(medical_conditions)}`);
+        if (phone !== undefined) setClauses.push(`phone = ${escapeSql(phone)}`);
+        if (profile_picture !== undefined) setClauses.push(`profile_picture = ${escapeSql(profile_picture)}`);
+
+        if (setClauses.length > 0) {
+            await query(`UPDATE users SET ${setClauses.join(', ')} WHERE id = ${req.userId}`);
+        }
+
+        res.status(200).json({ message: 'Perfil guardado. Tu nutricionista creará tu rutina personalizada.' });
+    } catch (err) {
+        console.error('[USER Error setup-profile]', err);
+        res.status(500).json({ message: 'Error en el servidor al guardar el perfil.' });
+    }
+});
+
+// Legacy endpoint — kept for backward compat but no longer auto-generates routine
 router.post('/setup-routine', isAuth, async (req, res) => {
     try {
         const { height, weight, lifestyle } = req.body;
-
-        const meals = [
-            { time: 'Desayuno', description: 'Avena con frutas y yogur', calories: 400 },
-            { time: 'Almuerzo', description: 'Pechuga de pollo con arroz integral y brócoli', calories: 600 },
-            { time: 'Merienda', description: 'Un puñado de frutos secos y una manzana', calories: 200 },
-            { time: 'Cena', description: 'Salmón a la plancha con ensalada verde', calories: 500 }
-        ];
-        const recommendations = 'Bebe al menos 2 litros de agua al día y mantén la constancia.';
-
-        const insertRoutineSql = `INSERT INTO routines (userId, meals, recommendations) VALUES (${req.userId}, ${escapeSql(JSON.stringify(meals))}, ${escapeSql(recommendations)})`;
-        const routineRes = await query(insertRoutineSql);
-
-        const newRoutines = await query(`SELECT id FROM routines WHERE userId = ${req.userId} ORDER BY id DESC LIMIT 1`);
-        const routineId = newRoutines && newRoutines[0] ? newRoutines[0].id : null;
-
-        await query(`UPDATE users SET height = ${escapeSql(height)}, weight = ${escapeSql(weight)}, lifestyle = ${escapeSql(lifestyle)}, routine_id = ${escapeSql(routineId)} WHERE id = ${req.userId}`);
-
-        res.status(200).json({
-            message: 'Rutina generada con éxito',
-            routine: { id: routineId, userId: req.userId, meals, recommendations }
-        });
+        const setClauses = [];
+        if (height) setClauses.push(`height = ${escapeSql(height)}`);
+        if (weight) setClauses.push(`weight = ${escapeSql(weight)}`);
+        if (lifestyle) setClauses.push(`lifestyle = ${escapeSql(lifestyle)}`);
+        if (setClauses.length > 0) {
+            await query(`UPDATE users SET ${setClauses.join(', ')} WHERE id = ${req.userId}`);
+        }
+        res.status(200).json({ message: 'Perfil guardado. Tu nutricionista creará tu rutina personalizada.' });
     } catch (err) {
         console.error('[USER Error setup-routine]', err);
-        res.status(500).json({ message: 'Error en el servidor al generar la rutina.' });
+        res.status(500).json({ message: 'Error en el servidor al guardar el perfil.' });
     }
 });
 
 // Get Professionals List
 router.get('/professionals', isAuth, async (req, res) => {
     try {
-        const pros = await query(`SELECT id, name, specialization, description FROM professionals`);
+        const pros = await query(`SELECT id, name, specialization, description, experience FROM professionals`);
         res.json(pros || []);
     } catch (err) {
         console.error('[USER Error professionals]', err);
@@ -157,7 +175,7 @@ router.post('/message', isAuth, async (req, res) => {
     }
 });
 
-// Save Daily Progress (Simplified endpoint)
+// Save Daily Progress
 router.post('/progress', isAuth, async (req, res) => {
     try {
         const { weight, notes } = req.body;
@@ -185,6 +203,43 @@ router.get('/progress', isAuth, async (req, res) => {
         console.error('[USER Error get progress]', err);
         res.status(500).json({ message: 'Error al obtener historial de progreso' });
     }
+});
+
+// Upload Avatar for Patient
+router.post('/upload-avatar', isAuth, (req, res) => {
+    upload.single('avatar')(req, res, async (err) => {
+        if (err) {
+            if (err.message === 'Request aborted' || err.code === 'ECONNRESET') {
+                return res.status(400).json({ message: 'Subida cancelada por el usuario.' });
+            }
+            console.error('[USER Avatar Upload Error]', err);
+            return res.status(400).json({ message: err.message || 'Error al subir el archivo.' });
+        }
+        if (!req.file) {
+            return res.status(400).json({ message: 'No se recibio ninguna imagen.' });
+        }
+
+        try {
+            // Delete old avatar if it's a local file
+            const users = await query(`SELECT profile_picture FROM users WHERE id = ${req.userId}`);
+            const oldPic = users && users[0] && users[0].profile_picture;
+            if (oldPic && oldPic.startsWith('/uploads/avatars/')) {
+                const oldPath = path.join(__dirname, '../../public', oldPic);
+                try {
+                    if (fs.existsSync(oldPath)) fs.unlinkSync(oldPath);
+                } catch (unlinkErr) {
+                    console.warn('[Avatar Cleanup Warning]', unlinkErr.message);
+                }
+            }
+
+            const publicUrl = `/uploads/avatars/${req.file.filename}`;
+            await query(`UPDATE users SET profile_picture = ${escapeSql(publicUrl)} WHERE id = ${req.userId}`);
+            return res.json({ message: 'Foto de perfil actualizada.', url: publicUrl });
+        } catch (dbErr) {
+            console.error('[USER Error upload-avatar]', dbErr);
+            return res.status(500).json({ message: 'Error al guardar la foto de perfil.' });
+        }
+    });
 });
 
 module.exports = router;

@@ -4,8 +4,6 @@
 
 **NutriApp** es una plataforma web integral que conecta a **pacientes (clientes)** con **nutricionistas profesionales certificados**, facilitando el diseño de planes alimentarios personalizados, el seguimiento continuo de progreso físico y la comunicación fluida entre ambas partes.
 
-La aplicación cuenta con una **estética de ilustración 3D estilizada (estilo Pixar / videojuegos tipo Overcooked)** con un enfoque profesional y sobrio, y está impulsada por un backend en Node.js/Express integrado con el motor relacional de **SpiderWeb API SQL Engine** (`sw_GaboDev24_NUTRIAPP_db`).
-
 ---
 
 ## 📑 Tabla de Contenidos
@@ -168,10 +166,10 @@ npm install
 Crea o edita el archivo `.env` en la raíz del proyecto con la siguiente configuración:
 
 ```env
-SPIDERWEB_API_KEY=b243dd0fadcd6b70794333e65f1ca0b1f2fbc92d5518901f9a529300e869a93c
+SPIDERWEB_API_KEY=
 SPIDERWEB_API_BASE_URL=https://spiderwebargapi.com.ar/api/v1
-DB_NAME=sw_GaboDev24_NUTRIAPP_db
-CLOUD_ID=28
+DB_NAME=
+CLOUD_ID=
 JWT_SECRET=TuSecretJWT
 EMAIL_USER=tuemail@gmail.com
 EMAIL_PASS=tu_password_de_aplicacion

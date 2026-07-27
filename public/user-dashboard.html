@@ -5,8 +5,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>NutriApp - Mi Panel</title>
+    <meta name="description" content="Panel personal del paciente en NutriApp. Gestiona tu perfil, rutina nutricional, progreso diario y comunicación con tu nutricionista.">
     <link rel="stylesheet" href="css/style.css">
-
 </head>
 
 <body>
@@ -14,12 +14,14 @@
         <div class="container">
             <nav>
                 <div class="logo">NutriApp</div>
-                <div class="menu-toggle" id="sidebar-toggle">
+                <button class="menu-toggle" id="sidebar-toggle" aria-label="Abrir menú">
                     <span></span>
                     <span></span>
                     <span></span>
+                </button>
+                <div id="userInfo" style="font-family:'Outfit',sans-serif; font-weight:600; font-size:0.95rem; color:var(--text-muted);">
+                    Hola, <span id="userName" style="color:var(--primary-dark);">Cargando...</span>
                 </div>
-                <div id="userInfo">Hola, <span id="userName">Cargando...</span></div>
             </nav>
         </div>
     </header>
@@ -27,122 +29,394 @@
     <div class="container container-dashboard">
         <div class="sidebar-overlay" id="sidebar-overlay"></div>
         <div class="dashboard-grid">
-            <aside class="sidebar">
-                <ul style="list-style: none;">
-                    <li style="margin-bottom: 1rem;"><a href="#" class="btn btn-primary" style="width: 100%;">Mi
-                            Resumen</a></li>
-                    <li style="margin-bottom: 1rem;"><a href="#" class="btn btn-outline" style="width: 100%;">Mi
-                            Rutina</a></li>
-                    <li style="margin-bottom: 1rem;"><a href="#" class="btn btn-outline" style="width: 100%;">Progreso
-                            Diario</a></li>
-                    <li style="margin-bottom: 1rem;"><a href="#" class="btn btn-outline"
-                            style="width: 100%;">Profesionales</a></li>
-                    <li style="margin-top: 5rem;"><button id="logoutBtn" class="btn btn-outline"
-                            style="width: 100%; border-color: #ef4444; color: #ef4444;">Cerrar Sesión</button></li>
+
+            <!-- SIDEBAR -->
+            <aside class="sidebar" id="main-sidebar">
+                <div class="sidebar-header" style="display:flex; align-items:center; gap:0.75rem;">
+                    <div id="userAvatarContainer" style="width:48px; height:48px; border-radius:50%; background:linear-gradient(135deg, var(--secondary) 0%, var(--primary-light) 100%); color:#ffffff; display:flex; align-items:center; justify-content:center; font-family:'Outfit',sans-serif; font-weight:700; font-size:1.1rem; overflow:hidden; flex-shrink:0;">
+                        <span id="userAvatarInitials">--</span>
+                    </div>
+                    <div style="min-width:0;">
+                        <div class="sidebar-user-name" id="sidebarName">Cargando...</div>
+                        <div class="sidebar-user-role">Paciente</div>
+                    </div>
+                </div>
+                <ul class="sidebar-nav">
+                    <li>
+                        <button class="active" id="nav-resumen" onclick="showSection('resumen')">
+                            <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/>
+                            </svg>
+                            Resumen
+                        </button>
+                    </li>
+                    <li>
+                        <button id="nav-rutina" onclick="showSection('rutina')">
+                            <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2"/><rect x="9" y="3" width="6" height="4" rx="2"/><path d="M9 12h6M9 16h4"/>
+                            </svg>
+                            Mi Rutina
+                        </button>
+                    </li>
+                    <li>
+                        <button id="nav-progreso" onclick="showSection('progreso')">
+                            <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
+                            </svg>
+                            Progreso
+                        </button>
+                    </li>
+                    <li>
+                        <button id="nav-mensajes" onclick="showSection('mensajes')">
+                            <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+                            </svg>
+                            Mensajes
+                        </button>
+                    </li>
+                    <li>
+                        <button id="nav-profesionales" onclick="showSection('profesionales')">
+                            <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+                            </svg>
+                            Profesionales
+                        </button>
+                    </li>
+                    <li>
+                        <button id="nav-perfil" onclick="showSection('perfil')">
+                            <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>
+                            </svg>
+                            Mi Perfil
+                        </button>
+                    </li>
+                    <div class="sidebar-divider"></div>
+                    <li>
+                        <button id="logoutBtn" class="nav-logout">
+                            <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/>
+                            </svg>
+                            Cerrar Sesión
+                        </button>
+                    </li>
                 </ul>
             </aside>
+
+            <!-- MAIN CONTENT -->
             <main class="main-content">
                 <div id="notification" class="notification"></div>
-                <section id="onboarding" style="display: none;">
-                    <div class="card">
-                        <h3>Completa tu perfil</h3>
-                        <p>Necesitamos estos datos para generar tu rutina personalizada.</p>
-                        <form id="onboardingForm" style="margin-top: 1.5rem;">
-                            <div class="form-group">
-                                <label>Altura (cm)</label>
-                                <input type="number" id="height" class="form-input" required>
-                            </div>
-                            <div class="form-group">
-                                <label>Peso (kg)</label>
-                                <input type="number" id="weight" class="form-input" required>
-                            </div>
-                            <div class="form-group">
-                                <label>Estilo de Vida</label>
-                                <select id="lifestyle" class="form-input">
-                                    <option value="sedentary">Sedentario (Poco ejercicio)</option>
-                                    <option value="lightly_active">Ligero (1-2 días/semana)</option>
-                                    <option value="moderately_active">Moderado (3-5 días/semana)</option>
-                                    <option value="very_active">Intenso (6-7 días/semana)</option>
-                                </select>
-                            </div>
-                            <button type="submit" class="btn btn-primary">Generar mi Rutina</button>
-                        </form>
-                    </div>
-                </section>
 
-                <section id="overview">
+                <!-- ======================== RESUMEN ======================== -->
+                <section id="resumen" class="dash-section active">
+                    <div class="dash-section-header">
+                        <h2>Mi Resumen</h2>
+                        <p>Bienvenido a tu panel personal de nutrición</p>
+                    </div>
+
                     <div class="metric-grid">
-                        <div class="card metric-card">
-                            <p>Peso Actual</p>
-                            <div class="metric-value"><span id="userWeight">--</span> kg</div>
+                        <div class="card metric-card accent-green">
+                            <span class="metric-label">Peso Actual</span>
+                            <div class="metric-value"><span id="userWeight">--</span></div>
+                            <span class="metric-unit">kg</span>
+                        </div>
+                        <div class="card metric-card accent-blue">
+                            <span class="metric-label">Altura</span>
+                            <div class="metric-value"><span id="userHeight">--</span></div>
+                            <span class="metric-unit">cm</span>
+                        </div>
+                        <div class="card metric-card accent-blue">
+                            <span class="metric-label">Índice IMC</span>
+                            <div class="metric-value" id="userIMC">--</div>
+                            <span id="userIMCBadge" style="margin-top:0.2rem;"><span class="status-badge no-routine">--</span></span>
+                        </div>
+                        <div class="card metric-card accent-orange">
+                            <span class="metric-label">Variación Peso</span>
+                            <div class="metric-value" id="weightDiff">--</div>
+                            <span class="metric-unit">kg desde el inicio</span>
                         </div>
                         <div class="card metric-card">
-                            <p>Meta Diaria</p>
-                            <div class="metric-value"><span id="userCals">--</span> kcal</div>
+                            <span class="metric-label">Registros de Progreso</span>
+                            <div class="metric-value" id="totalLogs">0</div>
+                            <span class="metric-unit">días registrados</span>
                         </div>
-                    </div>
-                    <div class="card">
-                        <h3>Mi Rutina de Hoy</h3>
-                        <div id="routineList">
-                            <p>No tienes una rutina generada aún.</p>
+                        <div class="card metric-card accent-orange">
+                            <span class="metric-label">Objetivo</span>
+                            <div class="metric-value" style="font-size:1.1rem;" id="userGoal">--</div>
                         </div>
-                    </div>
-
-                    <div class="card">
-                        <h3>Profesionales Disponibles</h3>
-                        <div id="prosList">
-                            <p>Cargando profesionales...</p>
-                        </div>
-                    </div>
-
-                    <div class="card">
-                        <h3>Registrar Progreso de Hoy</h3>
-                        <form id="progressForm">
-                            <div class="form-group">
-                                <label>Peso actual (kg)</label>
-                                <input type="number" id="currentWeight" class="form-input" required>
+                        <div class="card metric-card">
+                            <span class="metric-label">Estado Rutina</span>
+                            <div style="margin-top:0.35rem;" id="routineStatus">
+                                <span class="status-badge no-routine">Sin rutina</span>
                             </div>
-                            <div class="form-group">
-                                <label>Notas del día</label>
-                                <textarea id="dayNotes" class="form-input" style="height: 100px;"></textarea>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-title">
+                            Rutina de Hoy
+                            <span id="routineBadge"></span>
+                        </div>
+                        <div id="routineSummary">
+                            <div class="routine-waiting">
+                                <div class="waiting-icon">
+                                    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                                </div>
+                                <h3>En espera de tu nutricionista</h3>
+                                <p>Completa tu perfil y solicita un profesional. Él creará tu rutina personalizada.</p>
+                                <button class="btn btn-primary" style="margin-top:0.5rem;" onclick="showSection('perfil')">Completar mi perfil</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-title">Registrar Progreso de Hoy</div>
+                        <form id="progressFormQuick">
+                            <div class="form-row" style="margin-bottom:1rem;">
+                                <div class="form-group" style="margin:0;">
+                                    <label class="form-group label">Peso actual (kg)</label>
+                                    <input type="number" id="qWeight" class="form-input" placeholder="ej: 72.5" step="0.1" required>
+                                </div>
+                                <div class="form-group" style="margin:0;">
+                                    <label>Notas del día</label>
+                                    <input type="text" id="qNotes" class="form-input" placeholder="¿Cómo te sentiste hoy?">
+                                </div>
                             </div>
                             <button type="submit" class="btn btn-primary">Guardar Progreso</button>
                         </form>
                     </div>
+                </section>
 
-                    <div class="card">
-                        <h3>Mensajes con tu Nutricionista</h3>
-                        <div id="chatBox"
-                            style="height: 300px; overflow-y: auto; border: 1px solid #e2e8f0; padding: 1rem; border-radius: 0.5rem; margin-bottom: 1rem; background: #f8fafc; display: flex; flex-direction: column; gap: 0.5rem;">
-                            <!-- Messages will appear here -->
-                            <p style="text-align: center; color: #64748b;">No hay mensajes aún.</p>
+                <!-- ======================== RUTINA ======================== -->
+                <section id="rutina" class="dash-section">
+                    <div class="dash-section-header">
+                        <h2>Mi Rutina</h2>
+                        <p>Plan nutricional asignado por tu nutricionista</p>
+                    </div>
+                    <div class="card" id="routineDetailCard">
+                        <div class="routine-waiting">
+                            <div class="waiting-icon">
+                                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                            </div>
+                            <h3>Tu rutina aun no ha sido creada</h3>
+                            <p>Tu nutricionista revisará tu perfil y te asignará un plan alimenticio personalizado. Asegúrate de haber completado tus datos y de tener un profesional asignado.</p>
+                            <button class="btn btn-outline" style="margin-top:0.5rem;" onclick="showSection('profesionales')">Ver Profesionales</button>
                         </div>
-                        <form id="chatForm" style="display: flex; gap: 0.5rem;">
-                            <input type="text" id="messageInput" placeholder="Escribe un mensaje..." required
-                                style="flex: 1; padding: 0.5rem; border: 1px solid #e2e8f0; border-radius: 0.5rem;">
-                            <button type="submit" class="btn btn-primary">Enviar</button>
+                    </div>
+                </section>
+
+                <!-- ======================== PROGRESO ======================== -->
+                <section id="progreso" class="dash-section">
+                    <div class="dash-section-header">
+                        <h2>Mi Progreso</h2>
+                        <p>Registra y visualiza tu evolución diaria</p>
+                    </div>
+                    <div class="card">
+                        <div class="card-title">Nuevo Registro</div>
+                        <form id="progressForm">
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label>Peso actual (kg)</label>
+                                    <input type="number" id="currentWeight" class="form-input" placeholder="ej: 72.5" step="0.1" required>
+                                </div>
+                                <div class="form-group">
+                                    <label>Notas del día</label>
+                                    <input type="text" id="dayNotes" class="form-input" placeholder="¿Cómo fue tu día?">
+                                </div>
+                            </div>
+                            <button type="submit" class="btn btn-primary">Guardar Progreso</button>
                         </form>
                     </div>
+                    <div class="card">
+                        <div class="card-title">Historial de Registros</div>
+                        <div id="progressHistory" class="progress-history-list">
+                            <p style="color:var(--text-muted); font-size:0.9rem; text-align:center; padding:1.5rem;">No hay registros aún.</p>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- ======================== MENSAJES ======================== -->
+                <section id="mensajes" class="dash-section">
+                    <div class="dash-section-header">
+                        <h2>Mensajes</h2>
+                        <p>Comunicación directa con tu nutricionista asignado</p>
+                    </div>
+                    <div class="card" style="padding: 0; overflow:hidden;">
+                        <div class="card-title" style="padding: 1.25rem 1.5rem; margin:0; border-radius: var(--radius-lg) var(--radius-lg) 0 0;">
+                            Chat con tu Nutricionista
+                        </div>
+                        <div class="chat-container" style="border:none; border-radius:0 0 var(--radius-lg) var(--radius-lg); height:420px;">
+                            <div class="chat-messages" id="chatBox">
+                                <p class="chat-empty">No hay mensajes aun. Cuando tengas un profesional asignado podrás comunicarte aquí.</p>
+                            </div>
+                            <div class="chat-input-row">
+                                <form id="chatForm" style="display:contents;">
+                                    <input type="text" id="messageInput" placeholder="Escribe un mensaje..." autocomplete="off">
+                                    <button type="submit" class="btn btn-primary" style="padding:0.6rem 1.25rem;">Enviar</button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- ======================== PROFESIONALES ======================== -->
+                <section id="profesionales" class="dash-section">
+                    <div class="dash-section-header">
+                        <h2>Profesionales</h2>
+                        <p>Encuentra y solicita un nutricionista para que te guíe</p>
+                    </div>
+                    <div class="card">
+                        <div class="card-title">Profesionales Disponibles</div>
+                        <div id="prosList">
+                            <p style="color:var(--text-muted); font-size:0.9rem;">Cargando profesionales...</p>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- ======================== PERFIL ======================== -->
+                <section id="perfil" class="dash-section">
+                    <div class="dash-section-header">
+                        <h2>Mi Perfil</h2>
+                        <p>Completa tus datos para que tu nutricionista diseñe un plan personalizado</p>
+                    </div>
+                    <div class="card">
+                        <div class="onboarding-notice">
+                            Cuanto más completo sea tu perfil, mejor podrá tu nutricionista diseñar tu plan nutricional personalizado.
+                        </div>
+                        <div class="form-section-label" style="margin-top:0;">Foto de Perfil</div>
+                        <div class="avatar-upload-area">
+                            <div class="avatar-preview-wrapper">
+                                <div class="avatar-preview" id="avatarPreviewContainer">
+                                    <span id="avatarPreviewInitials">?</span>
+                                </div>
+                                <label for="avatarFileInput" class="avatar-upload-btn">
+                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+                                    Subir foto
+                                </label>
+                            </div>
+                            <div class="avatar-upload-info">
+                                <p>Formatos permitidos: JPG, PNG, GIF, WebP. Tamaño máximo: 5 MB.</p>
+                                <span id="avatarUploadStatus" style="font-size:0.825rem; color:var(--secondary-dark); font-weight:600; margin-top:0.25rem; display:none;"></span>
+                            </div>
+                            <input type="file" id="avatarFileInput" accept="image/jpeg,image/png,image/gif,image/webp" style="display:none;">
+                        </div>
+
+                        <form id="profileForm">
+
+                            <div class="form-section-label">Datos Físicos</div>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label>Altura (cm)</label>
+                                    <input type="number" id="height" class="form-input" placeholder="ej: 170">
+                                </div>
+                                <div class="form-group">
+                                    <label>Peso actual (kg)</label>
+                                    <input type="number" id="weight" class="form-input" placeholder="ej: 72.0" step="0.1">
+                                </div>
+                                <div class="form-group">
+                                    <label>Edad</label>
+                                    <input type="number" id="age" class="form-input" placeholder="ej: 30">
+                                </div>
+                                <div class="form-group">
+                                    <label>Género</label>
+                                    <select id="gender" class="form-input">
+                                        <option value="">Seleccionar...</option>
+                                        <option value="male">Masculino</option>
+                                        <option value="female">Femenino</option>
+                                        <option value="other">Otro / Prefiero no decir</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="form-section-label">Objetivo y Actividad</div>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label>Objetivo Principal</label>
+                                    <select id="goal" class="form-input">
+                                        <option value="">Seleccionar...</option>
+                                        <option value="lose_weight">Bajar de peso</option>
+                                        <option value="maintain">Mantener peso</option>
+                                        <option value="gain_weight">Subir de peso</option>
+                                        <option value="muscle_gain">Ganar músculo</option>
+                                        <option value="improve_health">Mejorar salud general</option>
+                                        <option value="sports_performance">Rendimiento deportivo</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label>Nivel de Actividad Física</label>
+                                    <select id="lifestyle" class="form-input">
+                                        <option value="">Seleccionar...</option>
+                                        <option value="sedentary">Sedentario (poco o ningún ejercicio)</option>
+                                        <option value="lightly_active">Ligero (1-2 días por semana)</option>
+                                        <option value="moderately_active">Moderado (3-5 días por semana)</option>
+                                        <option value="very_active">Intenso (6-7 días por semana)</option>
+                                        <option value="extra_active">Muy intenso (atleta / trabajo físico)</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="form-section-label">Información Médica y Contacto</div>
+                            <div class="form-group">
+                                <label>Alergias o intolerancias alimentarias</label>
+                                <textarea id="allergies" class="form-input" style="height:80px;" placeholder="ej: Intolerante a la lactosa, alérgico a los frutos secos..."></textarea>
+                            </div>
+                            <div class="form-group">
+                                <label>Condiciones médicas relevantes</label>
+                                <textarea id="medical_conditions" class="form-input" style="height:80px;" placeholder="ej: Diabetes tipo 2, hipertensión, hipotiroidismo... (opcional)"></textarea>
+                            </div>
+                            <div class="form-group">
+                                <label>Teléfono de contacto (opcional)</label>
+                                <input type="tel" id="phone" class="form-input" placeholder="ej: +54 11 1234-5678">
+                            </div>
+
+                            <button type="submit" class="btn btn-primary">Guardar Perfil</button>
+                        </form>
+                    </div>
+                </section>
+
             </main>
         </div>
     </div>
+
+    <footer style="margin-top:3rem; padding:1.5rem 0; text-align:center; color:var(--text-muted); font-size:0.875rem; border-top:1px solid var(--border);">
+        <p>NutriApp &copy; 2026. Todos los derechos reservados. <strong style="color:var(--primary-dark);">Powered by Spider-Web ARG</strong></p>
+    </footer>
+
     <script src="js/dashboard.js"></script>
     <script>
+        // Sidebar toggle for mobile
         const sidebarToggle = document.getElementById('sidebar-toggle');
-        const sidebar = document.querySelector('.sidebar');
+        const sidebar = document.getElementById('main-sidebar');
         const overlay = document.getElementById('sidebar-overlay');
 
         if (sidebarToggle) {
             sidebarToggle.addEventListener('click', () => {
                 sidebar.classList.toggle('active');
                 overlay.classList.toggle('active');
+                sidebarToggle.classList.toggle('active');
             });
 
             overlay.addEventListener('click', () => {
                 sidebar.classList.remove('active');
                 overlay.classList.remove('active');
+                sidebarToggle.classList.remove('active');
             });
         }
+
+        // Section navigation
+        window.showSection = (id) => {
+            document.querySelectorAll('.dash-section').forEach(s => s.classList.remove('active'));
+            document.querySelectorAll('.sidebar-nav button, .sidebar-nav a').forEach(b => b.classList.remove('active'));
+
+            const section = document.getElementById(id);
+            const nav = document.getElementById('nav-' + id);
+            if (section) section.classList.add('active');
+            if (nav) nav.classList.add('active');
+
+            // Close mobile sidebar
+            sidebar.classList.remove('active');
+            overlay.classList.remove('active');
+            sidebarToggle && sidebarToggle.classList.remove('active');
+        };
     </script>
 </body>
 

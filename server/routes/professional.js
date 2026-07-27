@@ -1,7 +1,10 @@
 const express = require('express');
 const router = express.Router();
+const path = require('path');
+const fs = require('fs');
 const isAuth = require('../middleware/auth');
 const { query, escapeSql } = require('../dbHelper');
+const { upload } = require('../middleware/upload');
 
 // Get Patients and Requests
 router.get('/patients', isAuth, async (req, res) => {
@@ -17,7 +20,7 @@ router.get('/patients', isAuth, async (req, res) => {
 
         let patientsList = [];
         if (patientIds.length > 0) {
-            patientsList = await query(`SELECT id, name, email, weight, height FROM users WHERE id IN (${patientIds.join(',')})`);
+            patientsList = await query(`SELECT id, name, email, weight, height, age, gender, goal, lifestyle, allergies, medical_conditions, phone, profile_picture, routine_id FROM users WHERE id IN (${patientIds.join(',')})`);
         }
 
         let pendingList = [];
@@ -71,7 +74,7 @@ router.post('/handle-request', isAuth, async (req, res) => {
 router.get('/patient/:id', isAuth, async (req, res) => {
     try {
         const patientId = req.params.id;
-        const users = await query(`SELECT id, name, email, height, weight, lifestyle, routine_id FROM users WHERE id = ${escapeSql(patientId)}`);
+        const users = await query(`SELECT id, name, email, height, weight, age, gender, goal, lifestyle, allergies, medical_conditions, phone, profile_picture, routine_id FROM users WHERE id = ${escapeSql(patientId)}`);
         const patient = users && users[0];
 
         if (!patient) {
@@ -186,7 +189,7 @@ router.put('/profile', isAuth, async (req, res) => {
 router.get('/patient/:id/stats', isAuth, async (req, res) => {
     try {
         const patientId = req.params.id;
-        const users = await query(`SELECT id, name, email, height, weight, lifestyle FROM users WHERE id = ${escapeSql(patientId)}`);
+        const users = await query(`SELECT id, name, email, height, weight, age, gender, goal, lifestyle, allergies, medical_conditions, phone FROM users WHERE id = ${escapeSql(patientId)}`);
         const patient = users && users[0];
         if (!patient) return res.status(404).json({ message: 'Paciente no encontrado' });
 
@@ -222,6 +225,43 @@ router.get('/patient/:id/progress', isAuth, async (req, res) => {
         console.error('[PRO Error progress history]', err);
         res.status(500).json({ message: 'Error al obtener progreso' });
     }
+});
+
+// Upload Avatar for Professional
+router.post('/upload-avatar', isAuth, (req, res) => {
+    upload.single('avatar')(req, res, async (err) => {
+        if (err) {
+            if (err.message === 'Request aborted' || err.code === 'ECONNRESET') {
+                return res.status(400).json({ message: 'Subida cancelada por el usuario.' });
+            }
+            console.error('[PRO Avatar Upload Error]', err);
+            return res.status(400).json({ message: err.message || 'Error al subir el archivo.' });
+        }
+        if (!req.file) {
+            return res.status(400).json({ message: 'No se recibio ninguna imagen.' });
+        }
+
+        try {
+            // Delete old avatar if it's a local file
+            const pros = await query(`SELECT profile_picture FROM professionals WHERE id = ${req.userId}`);
+            const oldPic = pros && pros[0] && pros[0].profile_picture;
+            if (oldPic && oldPic.startsWith('/uploads/avatars/')) {
+                const oldPath = path.join(__dirname, '../../public', oldPic);
+                try {
+                    if (fs.existsSync(oldPath)) fs.unlinkSync(oldPath);
+                } catch (unlinkErr) {
+                    console.warn('[Avatar Cleanup Warning]', unlinkErr.message);
+                }
+            }
+
+            const publicUrl = `/uploads/avatars/${req.file.filename}`;
+            await query(`UPDATE professionals SET profile_picture = ${escapeSql(publicUrl)} WHERE id = ${req.userId}`);
+            return res.json({ message: 'Foto de perfil actualizada.', url: publicUrl });
+        } catch (dbErr) {
+            console.error('[PRO Error upload-avatar]', dbErr);
+            return res.status(500).json({ message: 'Error al guardar la foto de perfil.' });
+        }
+    });
 });
 
 module.exports = router;

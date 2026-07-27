@@ -5,122 +5,290 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>NutriApp - Panel Profesional</title>
+    <meta name="description" content="Panel profesional de NutriApp. Gestiona tus pacientes, asigna rutinas nutricionales y mantén comunicación directa con ellos.">
     <link rel="stylesheet" href="css/style.css">
-
 </head>
 
 <body>
     <header class="scrolled">
         <div class="container">
             <nav>
-                <div class="logo">NutriApp Pro</div>
-                <div class="menu-toggle" id="sidebar-toggle">
+                <div class="logo">NutriApp <span style="font-size:0.75em; font-weight:600; color:var(--secondary-dark); margin-left:0.2rem;">Pro</span></div>
+                <button class="menu-toggle" id="sidebar-toggle" aria-label="Abrir menú">
                     <span></span>
                     <span></span>
                     <span></span>
+                </button>
+                <div id="userInfo" style="font-family:'Outfit',sans-serif; font-weight:600; font-size:0.95rem; color:var(--text-muted);">
+                    Hola, <span id="userName" style="color:var(--primary-dark);">Cargando...</span>
                 </div>
-                <div id="userInfo">Hola, <span id="userName">Cargando...</span></div>
             </nav>
         </div>
     </header>
 
+    <!-- PATIENT DRAWER OVERLAY -->
+    <div class="patient-drawer-overlay" id="drawerOverlay"></div>
+
+    <!-- PATIENT DETAIL DRAWER -->
+    <div class="patient-drawer" id="patientDrawer">
+        <div class="drawer-header">
+            <div>
+                <h3 id="drawerPatientName">Paciente</h3>
+                <p id="drawerPatientEmail" style="font-size:0.85rem; color:var(--text-muted); margin-top:0.15rem;"></p>
+            </div>
+            <button class="drawer-close" id="drawerClose" aria-label="Cerrar">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+            </button>
+        </div>
+        <div class="drawer-body">
+            <div class="drawer-tabs">
+                <button class="drawer-tab active" data-tab="info">Informacion</button>
+                <button class="drawer-tab" data-tab="routine">Rutina</button>
+                <button class="drawer-tab" data-tab="chat">Mensajes</button>
+            </div>
+
+            <!-- TAB: INFO -->
+            <div class="drawer-tab-panel active" id="tab-info">
+                <div class="patient-info-grid" id="patientInfoGrid">
+                    <!-- Filled by JS -->
+                </div>
+            </div>
+
+            <!-- TAB: ROUTINE -->
+            <div class="drawer-tab-panel" id="tab-routine">
+                <form id="routineForm">
+                    <div id="mealsContainer" class="routine-editor">
+                        <!-- Rows added by JS -->
+                    </div>
+                    <button type="button" class="btn btn-outline btn-add-meal" id="addMealBtn" style="margin-top:0.75rem; padding:0.55rem 1rem; font-size:0.875rem;">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                        Agregar comida
+                    </button>
+
+                    <div class="form-section-label" style="margin-top:1.25rem;">Recomendaciones Generales</div>
+                    <div class="form-group">
+                        <textarea id="routineRecommendations" class="form-input" style="height:90px;" placeholder="Consejos, notas y recomendaciones para el paciente..."></textarea>
+                    </div>
+
+                    <div style="display:flex; gap:0.75rem; margin-top:0.5rem;">
+                        <button type="submit" class="btn btn-primary">Guardar Rutina</button>
+                        <button type="button" class="btn btn-outline" id="clearRoutineBtn">Limpiar</button>
+                    </div>
+                </form>
+
+                <div id="routineNotification" style="display:none; margin-top:1rem;" class="notification"></div>
+            </div>
+
+            <!-- TAB: CHAT -->
+            <div class="drawer-tab-panel" id="tab-chat">
+                <div class="chat-container" style="height:360px;">
+                    <div class="chat-messages" id="drawerChatBox">
+                        <p class="chat-empty">No hay mensajes con este paciente aun.</p>
+                    </div>
+                    <div class="chat-input-row">
+                        <form id="drawerChatForm" style="display:contents;">
+                            <input type="text" id="drawerMessageInput" placeholder="Escribe un mensaje al paciente..." autocomplete="off">
+                            <button type="submit" class="btn btn-primary" style="padding:0.6rem 1.1rem;">Enviar</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <div class="container container-dashboard">
         <div class="sidebar-overlay" id="sidebar-overlay"></div>
         <div class="dashboard-grid">
-            <aside class="sidebar">
-                <ul style="list-style: none;">
-                    <li style="margin-bottom: 1rem;"><a href="#" class="btn btn-primary" style="width: 100%;"
-                            onclick="showSection('activePatients')">Mis
-                            Pacientes</a></li>
-                    <li style="margin-bottom: 1rem;"><a href="#" class="btn btn-outline" style="width: 100%;"
-                            onclick="showSection('pendingRequests')">Solicitudes</a></li>
-                    <li style="margin-bottom: 1rem;"><a href="#" class="btn btn-outline" style="width: 100%;"
-                            onclick="showSection('profileSection')">Editar Perfil</a></li>
-                    <li style="margin-top: 5rem;"><button id="logoutBtn" class="btn btn-outline"
-                            style="width: 100%; border-color: #ef4444; color: #ef4444;">Cerrar Sesión</button></li>
+
+            <!-- SIDEBAR -->
+            <aside class="sidebar" id="main-sidebar">
+                <div class="sidebar-header" style="display:flex; align-items:center; gap:0.75rem;">
+                    <div id="proAvatarContainer" style="width:48px; height:48px; border-radius:50%; background:linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%); color:#ffffff; display:flex; align-items:center; justify-content:center; font-family:'Outfit',sans-serif; font-weight:700; font-size:1.1rem; overflow:hidden; flex-shrink:0;">
+                        <span id="proAvatarInitials">--</span>
+                    </div>
+                    <div style="min-width:0;">
+                        <div class="sidebar-user-name" id="sidebarName">Cargando...</div>
+                        <div class="sidebar-user-role">Nutricionista</div>
+                    </div>
+                </div>
+                <ul class="sidebar-nav">
+                    <li>
+                        <button class="active" id="nav-pacientes" onclick="showSection('pacientes')">
+                            <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+                            </svg>
+                            Mis Pacientes
+                            <span id="sidebarPatientCount" style="margin-left:auto; background:var(--secondary-soft); color:var(--secondary-dark); font-size:0.75rem; font-weight:700; padding:0.1rem 0.5rem; border-radius:9999px;"></span>
+                        </button>
+                    </li>
+                    <li>
+                        <button id="nav-solicitudes" onclick="showSection('solicitudes')">
+                            <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 14.1a19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 3.6 3.3h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 10a16 16 0 0 0 6 6l.86-.86a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 17.24z"/>
+                            </svg>
+                            Solicitudes
+                            <span id="sidebarRequestCount" style="margin-left:auto; background:#fef3c7; color:#b45309; font-size:0.75rem; font-weight:700; padding:0.1rem 0.5rem; border-radius:9999px;"></span>
+                        </button>
+                    </li>
+                    <li>
+                        <button id="nav-perfil" onclick="showSection('perfil')">
+                            <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>
+                            </svg>
+                            Mi Perfil
+                        </button>
+                    </li>
+                    <div class="sidebar-divider"></div>
+                    <li>
+                        <button id="logoutBtn" class="nav-logout">
+                            <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/>
+                            </svg>
+                            Cerrar Sesión
+                        </button>
+                    </li>
                 </ul>
             </aside>
 
+            <!-- MAIN CONTENT -->
             <main class="main-content">
                 <div id="notification" class="notification"></div>
 
-                <!-- Profile Edit Section -->
-                <section id="profileSection" style="display: none;">
-                    <h3>Editar Mi Perfil</h3>
+                <!-- ======================== MIS PACIENTES ======================== -->
+                <section id="pacientes" class="dash-section active">
+                    <div class="dash-section-header">
+                        <h2>Mis Pacientes</h2>
+                        <p>Gestiona los planes y el seguimiento de cada paciente</p>
+                    </div>
                     <div class="card">
+                        <div class="card-title">Pacientes Activos</div>
+                        <ul id="patientsList" class="patient-list">
+                            <li style="color:var(--text-muted); font-size:0.9rem; padding:1rem 0;">Cargando pacientes...</li>
+                        </ul>
+                    </div>
+                </section>
+
+                <!-- ======================== SOLICITUDES ======================== -->
+                <section id="solicitudes" class="dash-section">
+                    <div class="dash-section-header">
+                        <h2>Solicitudes Pendientes</h2>
+                        <p>Revisa y gestiona las solicitudes de nuevos pacientes</p>
+                    </div>
+                    <div class="card">
+                        <div class="card-title">Nuevas Solicitudes</div>
+                        <ul id="requestsList" class="patient-list">
+                            <li style="color:var(--text-muted); font-size:0.9rem; padding:1rem 0;">Cargando solicitudes...</li>
+                        </ul>
+                    </div>
+                </section>
+
+                <!-- ======================== PERFIL ======================== -->
+                <section id="perfil" class="dash-section">
+                    <div class="dash-section-header">
+                        <h2>Mi Perfil Profesional</h2>
+                        <p>Esta informacion sera visible para los pacientes que busquen un nutricionista</p>
+                    </div>
+                    <div class="card">
+                        <div class="form-section-label" style="margin-top:0;">Foto de Perfil Profesional</div>
+                        <div class="avatar-upload-area">
+                            <div class="avatar-preview-wrapper">
+                                <div class="avatar-preview" id="proAvatarPreviewContainer">
+                                    <span id="proAvatarPreviewInitials">?</span>
+                                </div>
+                                <label for="proAvatarFileInput" class="avatar-upload-btn">
+                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+                                    Subir foto
+                                </label>
+                            </div>
+                            <div class="avatar-upload-info">
+                                <p>Formatos permitidos: JPG, PNG, GIF, WebP. Tamaño máximo: 5 MB.</p>
+                                <span id="proAvatarUploadStatus" style="font-size:0.825rem; color:var(--secondary-dark); font-weight:600; margin-top:0.25rem; display:none;"></span>
+                            </div>
+                            <input type="file" id="proAvatarFileInput" accept="image/jpeg,image/png,image/gif,image/webp" style="display:none;">
+                        </div>
+
                         <form id="profileForm">
+
+                            <div class="form-section-label">Datos Profesionales</div>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label>Nombre completo</label>
+                                    <input type="text" id="proName" class="form-input" placeholder="Tu nombre profesional" required>
+                                </div>
+                                <div class="form-group">
+                                    <label>Especializacion</label>
+                                    <input type="text" id="proSpecialization" class="form-input" placeholder="ej: Nutricion Deportiva">
+                                </div>
+                                <div class="form-group">
+                                    <label>Anos de Experiencia</label>
+                                    <input type="text" id="proExperience" class="form-input" placeholder="ej: 5 anos">
+                                </div>
+                                <div class="form-group">
+                                    <label>Formacion Academica</label>
+                                    <input type="text" id="proEducation" class="form-input" placeholder="ej: Licenciado en Nutricion">
+                                </div>
+                            </div>
+
+                            <div class="form-section-label">Descripcion Publica</div>
                             <div class="form-group">
-                                <label>Nombre</label>
-                                <input type="text" id="proName" class="form-input" required>
+                                <label>Descripcion breve <small style="color:var(--text-muted);">(visible en la pagina principal)</small></label>
+                                <textarea id="proDescription" class="form-input" style="height:80px;" placeholder="Descripcion corta que veran los visitantes..."></textarea>
                             </div>
                             <div class="form-group">
-                                <label>Especialización</label>
-                                <input type="text" id="proSpecialization" class="form-input"
-                                    placeholder="ej: Nutrición Deportiva">
+                                <label>Biografia extendida</label>
+                                <textarea id="proBio" class="form-input" style="height:120px;" placeholder="Cuéntanos mas sobre tu experiencia, enfoque y metodo de trabajo..."></textarea>
                             </div>
-                            <div class="form-group">
-                                <label>Descripción Corta (se muestra en la página principal)</label>
-                                <textarea id="proDescription" class="form-input" style="height: 80px;"
-                                    placeholder="Descripción breve que verán los visitantes"></textarea>
+
+                            <div style="display:flex; gap:0.75rem;">
+                                <button type="submit" class="btn btn-primary">Guardar Cambios</button>
+                                <button type="button" class="btn btn-outline" onclick="showSection('pacientes')">Cancelar</button>
                             </div>
-                            <div class="form-group">
-                                <label>Biografía Extendida</label>
-                                <textarea id="proBio" class="form-input" style="height: 120px;"
-                                    placeholder="Cuéntanos más sobre tu experiencia y enfoque"></textarea>
-                            </div>
-                            <div class="form-group">
-                                <label>Años de Experiencia</label>
-                                <input type="text" id="proExperience" class="form-input" placeholder="ej: 5 años">
-                            </div>
-                            <div class="form-group">
-                                <label>Formación Académica</label>
-                                <textarea id="proEducation" class="form-input" style="height: 80px;"
-                                    placeholder="ej: Licenciado en Nutrición - Universidad XYZ"></textarea>
-                            </div>
-                            <button type="submit" class="btn btn-primary">Guardar Cambios</button>
-                            <button type="button" class="btn btn-outline"
-                                onclick="showSection('activePatients')">Cancelar</button>
                         </form>
                     </div>
                 </section>
 
-                <section id="pendingRequests">
-                    <h3>Solicitudes Pendientes</h3>
-                    <div class="card">
-                        <ul id="requestsList" class="patient-list">
-                            <li>Cargando solicitudes...</li>
-                        </ul>
-                    </div>
-                </section>
-
-                <section id="activePatients">
-                    <h3>Mis Pacientes</h3>
-                    <div class="card">
-                        <ul id="patientsList" class="patient-list">
-                            <li>Cargando pacientes...</li>
-                        </ul>
-                    </div>
-                </section>
             </main>
         </div>
     </div>
+
+    <footer style="margin-top:3rem; padding:1.5rem 0; text-align:center; color:var(--text-muted); font-size:0.875rem; border-top:1px solid var(--border);">
+        <p>NutriApp &copy; 2026. Panel Profesional. <strong style="color:var(--primary-dark);">Powered by Spider-Web ARG</strong></p>
+    </footer>
+
     <script src="js/pro-dashboard.js"></script>
     <script>
+        // Sidebar toggle for mobile
         const sidebarToggle = document.getElementById('sidebar-toggle');
-        const sidebar = document.querySelector('.sidebar');
+        const sidebar = document.getElementById('main-sidebar');
         const overlay = document.getElementById('sidebar-overlay');
 
         if (sidebarToggle) {
             sidebarToggle.addEventListener('click', () => {
                 sidebar.classList.toggle('active');
                 overlay.classList.toggle('active');
+                sidebarToggle.classList.toggle('active');
             });
-
             overlay.addEventListener('click', () => {
                 sidebar.classList.remove('active');
                 overlay.classList.remove('active');
+                sidebarToggle.classList.remove('active');
             });
         }
+
+        // Section navigation
+        window.showSection = (id) => {
+            document.querySelectorAll('.dash-section').forEach(s => s.classList.remove('active'));
+            document.querySelectorAll('.sidebar-nav button, .sidebar-nav a').forEach(b => b.classList.remove('active'));
+
+            const section = document.getElementById(id);
+            const nav = document.getElementById('nav-' + id);
+            if (section) section.classList.add('active');
+            if (nav) nav.classList.add('active');
+
+            sidebar.classList.remove('active');
+            overlay.classList.remove('active');
+            sidebarToggle && sidebarToggle.classList.remove('active');
+        };
     </script>
 </body>
 

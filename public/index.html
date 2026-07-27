@@ -225,55 +225,16 @@
             </div>
         </section>
 
-        <!-- Testimonios -->
+        <!-- Testimonios Dinamicos -->
         <section id="testimonios" class="testimonials-section">
             <div class="container">
                 <div class="section-header">
-                    <h2>Experiencias en NutriApp</h2>
-                    <p>Lo que dicen tanto pacientes como profesionales que utilizan nuestra plataforma.</p>
+                    <h2>Experiencias de Nuestros Pacientes</h2>
+                    <p>Historias reales de personas que transformaron su salud con NutriApp.</p>
                 </div>
-
-                <div class="testimonials-grid">
-                    <div class="testimonial-card">
-                        <div>
-                            <div class="testimonial-stars">★★★★★</div>
-                            <p class="testimonial-text">"Pude elegir a mi nutricionista en NutriApp y registrar mi progreso día a día. Los cambios en mi energía y peso han sido increíbles."</p>
-                        </div>
-                        <div class="testimonial-user">
-                            <div class="testimonial-avatar">MC</div>
-                            <div>
-                                <div class="testimonial-name">Martín Cantero</div>
-                                <div class="testimonial-role">Paciente Registrado</div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="testimonial-card">
-                        <div>
-                            <div class="testimonial-stars">★★★★★</div>
-                            <p class="testimonial-text">"Como profesional, NutriApp me permite gestionar más de 40 pacientes de forma ordenada, enviar dietas y ver sus registros diarios en segundos."</p>
-                        </div>
-                        <div class="testimonial-user">
-                            <div class="testimonial-avatar">RL</div>
-                            <div>
-                                <div class="testimonial-name">Lic. Romina Lamas</div>
-                                <div class="testimonial-role">Nutricionista Registrada (M.N. 48201)</div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="testimonial-card">
-                        <div>
-                            <div class="testimonial-stars">★★★★★</div>
-                            <p class="testimonial-text">"La posibilidad de hacer consultas rápidas por el chat interno hace que el tratamiento sea verdaderamente continuo y sin frustraciones."</p>
-                        </div>
-                        <div class="testimonial-user">
-                            <div class="testimonial-avatar">SL</div>
-                            <div>
-                                <div class="testimonial-name">Sofia López</div>
-                                <div class="testimonial-role">Paciente Registrada</div>
-                            </div>
-                        </div>
+                <div class="testimonials-grid" id="testimonials-container">
+                    <div class="testimonial-card" style="grid-column:1/-1; text-align:center; padding:2rem;">
+                        <p style="color:var(--text-muted);">Cargando experiencias...</p>
                     </div>
                 </div>
             </div>
@@ -290,15 +251,21 @@
 
                         <div class="contact-details">
                             <div class="contact-item">
-                                <div class="contact-icon">📍</div>
+                                <div class="contact-icon">
+                                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+                                </div>
                                 <span>Sede Central NutriApp, Buenos Aires, Argentina</span>
                             </div>
                             <div class="contact-item">
-                                <div class="contact-icon">✉️</div>
+                                <div class="contact-icon">
+                                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+                                </div>
                                 <span>soporte@nutriapp.com.ar</span>
                             </div>
                             <div class="contact-item">
-                                <div class="contact-icon">📞</div>
+                                <div class="contact-icon">
+                                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 14.1a19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 3.6 3.3h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 10a16 16 0 0 0 6 6l.86-.86a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 17.24z"/></svg>
+                                </div>
                                 <span>+54 11 4820-9100</span>
                             </div>
                         </div>
@@ -379,7 +346,7 @@
             </div>
 
             <div class="footer-bottom">
-                <p>&copy; 2026 NutriApp. Plataforma de Nutrición Multiusuario. Motor SQL SpiderWeb API.</p>
+                <p>&copy; 2026 NutriApp. Plataforma de Nutrición Multiusuario. <strong>Powered by Spider-Web ARG</strong></p>
             </div>
         </div>
     </footer>
@@ -450,7 +417,91 @@
             }
         }
 
+        // Load Dynamic Testimonials from registered patients with progress
+        async function loadTestimonials() {
+            try {
+                const response = await fetch('/api/public/testimonials');
+                const container = document.getElementById('testimonials-container');
+                if (!container) return;
+
+                const data = await response.json();
+
+                if (!Array.isArray(data) || data.length === 0) {
+                    // Fall back to curated static reviews
+                    container.innerHTML = `
+                        <div class="testimonial-card">
+                            <div>
+                                <div class="testimonial-stars">&#9733;&#9733;&#9733;&#9733;&#9733;</div>
+                                <p class="testimonial-text">"Pude elegir a mi nutricionista en NutriApp y registrar mi progreso dia a dia. Los cambios en mi energia y peso han sido increibles."</p>
+                            </div>
+                            <div class="testimonial-user">
+                                <div class="testimonial-avatar">MC</div>
+                                <div>
+                                    <div class="testimonial-name">Martin Cantero</div>
+                                    <div class="testimonial-role">Paciente Registrado</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="testimonial-card">
+                            <div>
+                                <div class="testimonial-stars">&#9733;&#9733;&#9733;&#9733;&#9733;</div>
+                                <p class="testimonial-text">"La plataforma hace que el seguimiento de mi dieta sea algo que espero hacer cada dia. Mi nutricionista siempre esta disponible."</p>
+                            </div>
+                            <div class="testimonial-user">
+                                <div class="testimonial-avatar">SL</div>
+                                <div>
+                                    <div class="testimonial-name">Sofia Lopez</div>
+                                    <div class="testimonial-role">Paciente Registrada</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="testimonial-card">
+                            <div>
+                                <div class="testimonial-stars">&#9733;&#9733;&#9733;&#9733;&#9733;</div>
+                                <p class="testimonial-text">"Llevo 3 meses usando NutriApp y ya baje 8 kg. La comunicacion con mi nutricionista por el chat interno fue clave para mantenerme enfocado."</p>
+                            </div>
+                            <div class="testimonial-user">
+                                <div class="testimonial-avatar">AR</div>
+                                <div>
+                                    <div class="testimonial-name">Alejandro Rios</div>
+                                    <div class="testimonial-role">Paciente Registrado</div>
+                                </div>
+                            </div>
+                        </div>`;
+                    return;
+                }
+
+                container.innerHTML = data.map(patient => {
+                    const initials = patient.name.split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase();
+                    const avatarHtml = patient.profile_picture
+                        ? `<div class="testimonial-avatar" style="overflow:hidden; padding:0;"><img src="${patient.profile_picture}" alt="${patient.name}" style="width:100%;height:100%;object-fit:cover;"></div>`
+                        : `<div class="testimonial-avatar">${initials}</div>`;
+
+                    const weightChange = patient.weight_change ? `Bajo ${Math.abs(patient.weight_change)} kg` : null;
+                    const goalLabel = { lose_weight: 'Perdida de peso', maintain: 'Mantenimiento', gain_weight: 'Ganancia de peso', muscle_gain: 'Ganancia muscular', improve_health: 'Salud general', sports_performance: 'Rendimiento deportivo' }[patient.goal] || 'Nutricion';
+
+                    return `
+                        <div class="testimonial-card">
+                            <div>
+                                <div class="testimonial-stars">&#9733;&#9733;&#9733;&#9733;&#9733;</div>
+                                <p class="testimonial-text">"Llevo ${patient.progress_count} dias registrando mi progreso en NutriApp. ${weightChange ? 'Ya ' + weightChange + '.' : ''} Mi nutricionista diseño un plan perfecto para mi objetivo de ${goalLabel}."</p>
+                            </div>
+                            <div class="testimonial-user">
+                                ${avatarHtml}
+                                <div>
+                                    <div class="testimonial-name">${patient.name}</div>
+                                    <div class="testimonial-role">Paciente Activo en NutriApp</div>
+                                </div>
+                            </div>
+                        </div>`;
+                }).join('');
+            } catch (err) {
+                console.error('Error al cargar testimonios:', err);
+            }
+        }
+
         loadProfessionals();
+        loadTestimonials();
     </script>
 </body>
 
