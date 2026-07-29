@@ -73,6 +73,15 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
     };
 
+    const formatAvatarUrl = (url) => {
+        if (!url || !String(url).trim()) return '';
+        const trimmed = String(url).trim();
+        if ((trimmed.startsWith('http://') || trimmed.startsWith('https://')) && trimmed.includes('spiderwebargapi.com.ar') && !trimmed.includes('/api/public/avatar-proxy')) {
+            return `/api/public/avatar-proxy?url=${encodeURIComponent(trimmed)}`;
+        }
+        return trimmed;
+    };
+
     // ---------------------------------------------------------------
     // PRO AVATAR HELPER
     // ---------------------------------------------------------------
@@ -82,14 +91,56 @@ document.addEventListener('DOMContentLoaded', async () => {
         if (!container) return;
 
         const initials = (name || user.name || 'P').split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase();
+        const picUrl = formatAvatarUrl(profilePic);
 
-        if (profilePic && profilePic.trim()) {
-            container.innerHTML = `<img src="${profilePic.trim()}" alt="Foto" style="width:100%; height:100%; object-fit:cover;">`;
-            if (previewEl) previewEl.innerHTML = `<img src="${profilePic.trim()}" alt="Foto" style="width:100%; height:100%; object-fit:cover; border-radius:50%;">`;
+        if (picUrl) {
+            container.innerHTML = `<img src="${picUrl}" alt="Foto" style="width:100%; height:100%; object-fit:cover;">`;
+            if (previewEl) previewEl.innerHTML = `<img src="${picUrl}" alt="Foto" style="width:100%; height:100%; object-fit:cover; border-radius:50%;">`;
         } else {
             container.innerHTML = `<span>${initials}</span>`;
             if (previewEl) previewEl.innerHTML = `<span id="proAvatarPreviewInitials">${initials}</span>`;
         }
+    };
+
+    // Helper to compress image before uploading
+    const compressProAvatarImage = async (file, maxWidth = 1000, maxHeight = 1000, quality = 0.8) => {
+        return new Promise((resolve) => {
+            if (!file || file.size <= 500 * 1024) return resolve(file);
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                const img = new Image();
+                img.onload = () => {
+                    let width = img.width;
+                    let height = img.height;
+                    if (width > maxWidth || height > maxHeight) {
+                        if (width > height) {
+                            height = Math.round((height * maxWidth) / width);
+                            width = maxWidth;
+                        } else {
+                            width = Math.round((width * maxHeight) / height);
+                            height = maxHeight;
+                        }
+                    }
+                    const canvas = document.createElement('canvas');
+                    canvas.width = width;
+                    canvas.height = height;
+                    const ctx = canvas.getContext('2d');
+                    ctx.drawImage(img, 0, 0, width, height);
+                    canvas.toBlob((blob) => {
+                        if (!blob) return resolve(file);
+                        const compressed = new File([blob], (file.name || 'avatar').replace(/\.[^/.]+$/, "") + ".jpg", {
+                            type: 'image/jpeg',
+                            lastModified: Date.now()
+                        });
+                        resolve(compressed);
+                    }, 'image/jpeg', quality);
+                };
+                img.onerror = () => resolve(file);
+                img.src = e.target.result;
+            };
+            reader.onerror = () => resolve(file);
+            reader.readAsDataURL(file);
+        });
     };
 
     // PRO AVATAR FILE UPLOAD
@@ -98,7 +149,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     if (proAvatarInput) {
         proAvatarInput.addEventListener('change', async () => {
-            const file = proAvatarInput.files[0];
+            let file = proAvatarInput.files[0];
             if (!file) return;
 
             // Preview instantly
@@ -111,12 +162,13 @@ document.addEventListener('DOMContentLoaded', async () => {
             };
             reader.readAsDataURL(file);
 
-            if (proAvatarStatus) { proAvatarStatus.style.display = 'block'; proAvatarStatus.textContent = 'Subiendo...'; proAvatarStatus.style.color = 'var(--text-muted)'; }
-
-            const formData = new FormData();
-            formData.append('avatar', file);
+            if (proAvatarStatus) { proAvatarStatus.style.display = 'block'; proAvatarStatus.textContent = 'Procesando y subiendo...'; proAvatarStatus.style.color = 'var(--text-muted)'; }
 
             try {
+                file = await compressProAvatarImage(file);
+                const formData = new FormData();
+                formData.append('avatar', file);
+
                 const res = await fetch('/api/pro/upload-avatar', {
                     method: 'POST',
                     headers: { 'Authorization': `Bearer ${token}` },
@@ -125,7 +177,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                 const data = await res.json();
 
                 if (res.ok) {
-                    if (proAvatarStatus) { proAvatarStatus.textContent = 'Foto actualizada correctamente.'; proAvatarStatus.style.color = 'var(--secondary-dark)'; }
+                    if (proAvatarStatus) { proAvatarStatus.textContent = 'Foto actualizada en Cloud Storage.'; proAvatarStatus.style.color = 'var(--secondary-dark)'; }
                     const container = document.getElementById('proAvatarContainer');
                     if (container) container.innerHTML = `<img src="${data.url}" style="width:100%; height:100%; object-fit:cover;">`;
                     const previewEl = document.getElementById('proAvatarPreviewContainer');
@@ -134,7 +186,8 @@ document.addEventListener('DOMContentLoaded', async () => {
                     if (proAvatarStatus) { proAvatarStatus.textContent = data.message || 'Error al subir la foto.'; proAvatarStatus.style.color = '#dc2626'; }
                 }
             } catch (err) {
-                if (proAvatarStatus) { proAvatarStatus.textContent = 'Error de conexión.'; proAvatarStatus.style.color = '#dc2626'; }
+                console.error('[PRO Avatar Upload Error]', err);
+                if (proAvatarStatus) { proAvatarStatus.textContent = 'Error de conexión al subir la imagen.'; proAvatarStatus.style.color = '#dc2626'; }
             }
         });
     }
@@ -501,6 +554,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             const response = await fetch('/api/pro/patients', {
                 headers: { 'Authorization': `Bearer ${token}` }
             });
+            const data = await response.json();
             updateProAvatar(data.profile_picture, data.name);
 
             const fields = ['proName', 'proSpecialization', 'proDescription', 'proBio', 'proExperience', 'proEducation'];

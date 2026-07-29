@@ -42,22 +42,74 @@ document.addEventListener('DOMContentLoaded', async () => {
         extra_active: 'Muy intenso'
     };
 
+    const formatAvatarUrl = (url) => {
+        if (!url || !String(url).trim()) return '';
+        const trimmed = String(url).trim();
+        if ((trimmed.startsWith('http://') || trimmed.startsWith('https://')) && trimmed.includes('spiderwebargapi.com.ar') && !trimmed.includes('/api/public/avatar-proxy')) {
+            return `/api/public/avatar-proxy?url=${encodeURIComponent(trimmed)}`;
+        }
+        return trimmed;
+    };
+
     // Update Avatar image or initials in sidebar
     const updateUserAvatar = (profilePic, name) => {
         const container = document.getElementById('userAvatarContainer');
         const previewEl = document.getElementById('avatarPreviewContainer');
-        const initialsPreviewEl = document.getElementById('avatarPreviewInitials');
+        const profilePicInput = document.getElementById('profile_picture');
         if (!container) return;
 
         const initials = (name || user.name || 'U').split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase();
+        const picUrl = formatAvatarUrl(profilePic);
 
-        if (profilePic && profilePic.trim()) {
-            container.innerHTML = `<img src="${profilePic.trim()}" alt="Foto de Perfil" style="width:100%; height:100%; object-fit:cover;">`;
-            if (previewEl) previewEl.innerHTML = `<img src="${profilePic.trim()}" alt="Foto de Perfil" style="width:100%; height:100%; object-fit:cover; border-radius:50%;">`;
+        if (picUrl) {
+            container.innerHTML = `<img src="${picUrl}" alt="Foto de Perfil" style="width:100%; height:100%; object-fit:cover;">`;
+            if (previewEl) previewEl.innerHTML = `<img src="${picUrl}" alt="Foto de Perfil" style="width:100%; height:100%; object-fit:cover; border-radius:50%;">`;
+            if (profilePicInput) profilePicInput.value = picUrl;
         } else {
             container.innerHTML = `<span>${initials}</span>`;
             if (previewEl) { previewEl.innerHTML = `<span id="avatarPreviewInitials">${initials}</span>`; }
         }
+    };
+
+    // Helper to compress image before uploading
+    const compressAvatarImage = async (file, maxWidth = 1000, maxHeight = 1000, quality = 0.8) => {
+        return new Promise((resolve) => {
+            if (!file || file.size <= 500 * 1024) return resolve(file);
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                const img = new Image();
+                img.onload = () => {
+                    let width = img.width;
+                    let height = img.height;
+                    if (width > maxWidth || height > maxHeight) {
+                        if (width > height) {
+                            height = Math.round((height * maxWidth) / width);
+                            width = maxWidth;
+                        } else {
+                            width = Math.round((width * maxHeight) / height);
+                            height = maxHeight;
+                        }
+                    }
+                    const canvas = document.createElement('canvas');
+                    canvas.width = width;
+                    canvas.height = height;
+                    const ctx = canvas.getContext('2d');
+                    ctx.drawImage(img, 0, 0, width, height);
+                    canvas.toBlob((blob) => {
+                        if (!blob) return resolve(file);
+                        const compressed = new File([blob], (file.name || 'avatar').replace(/\.[^/.]+$/, "") + ".jpg", {
+                            type: 'image/jpeg',
+                            lastModified: Date.now()
+                        });
+                        resolve(compressed);
+                    }, 'image/jpeg', quality);
+                };
+                img.onerror = () => resolve(file);
+                img.src = e.target.result;
+            };
+            reader.onerror = () => resolve(file);
+            reader.readAsDataURL(file);
+        });
     };
 
     // Avatar file input — uploads immediately on selection
@@ -66,7 +118,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     if (avatarInput) {
         avatarInput.addEventListener('change', async () => {
-            const file = avatarInput.files[0];
+            let file = avatarInput.files[0];
             if (!file) return;
 
             // Show local preview instantly
@@ -80,12 +132,13 @@ document.addEventListener('DOMContentLoaded', async () => {
             reader.readAsDataURL(file);
 
             // Upload to server
-            if (avatarStatus) { avatarStatus.style.display = 'block'; avatarStatus.textContent = 'Subiendo...'; avatarStatus.style.color = 'var(--text-muted)'; }
-
-            const formData = new FormData();
-            formData.append('avatar', file);
+            if (avatarStatus) { avatarStatus.style.display = 'block'; avatarStatus.textContent = 'Procesando y subiendo...'; avatarStatus.style.color = 'var(--text-muted)'; }
 
             try {
+                file = await compressAvatarImage(file);
+                const formData = new FormData();
+                formData.append('avatar', file);
+
                 const res = await fetch('/api/user/upload-avatar', {
                     method: 'POST',
                     headers: { 'Authorization': `Bearer ${token}` },
@@ -94,17 +147,19 @@ document.addEventListener('DOMContentLoaded', async () => {
                 const data = await res.json();
 
                 if (res.ok) {
-                    if (avatarStatus) { avatarStatus.textContent = 'Foto actualizada correctamente.'; avatarStatus.style.color = 'var(--secondary-dark)'; }
-                    // Update sidebar with server URL
-                    const container = document.getElementById('userAvatarContainer');
-                    if (container) container.innerHTML = `<img src="${data.url}" style="width:100%; height:100%; object-fit:cover;">`;
-                    const previewEl = document.getElementById('avatarPreviewContainer');
-                    if (previewEl) previewEl.innerHTML = `<img src="${data.url}" style="width:100%; height:100%; object-fit:cover; border-radius:50%;">`;
+                    if (avatarStatus) { avatarStatus.textContent = 'Foto actualizada en Cloud Storage.'; avatarStatus.style.color = 'var(--secondary-dark)'; }
+                    
+                    updateUserAvatar(data.url, user.name);
+
+                    const storedUser = JSON.parse(localStorage.getItem('user') || '{}');
+                    storedUser.profile_picture = data.url;
+                    localStorage.setItem('user', JSON.stringify(storedUser));
                 } else {
                     if (avatarStatus) { avatarStatus.textContent = data.message || 'Error al subir la foto.'; avatarStatus.style.color = '#dc2626'; }
                 }
             } catch (err) {
-                if (avatarStatus) { avatarStatus.textContent = 'Error de conexion.'; avatarStatus.style.color = '#dc2626'; }
+                console.error('[User Avatar Upload Error]', err);
+                if (avatarStatus) { avatarStatus.textContent = 'Error de conexión al subir la imagen.'; avatarStatus.style.color = '#dc2626'; }
             }
         });
     }

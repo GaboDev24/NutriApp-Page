@@ -3,7 +3,7 @@ const router = express.Router();
 const path = require('path');
 const fs = require('fs');
 const isAuth = require('../middleware/auth');
-const { query, escapeSql } = require('../dbHelper');
+const { query, escapeSql, sdk } = require('../dbHelper');
 const { upload } = require('../middleware/upload');
 
 // Get Patients and Requests
@@ -237,26 +237,63 @@ router.post('/upload-avatar', isAuth, (req, res) => {
             console.error('[PRO Avatar Upload Error]', err);
             return res.status(400).json({ message: err.message || 'Error al subir el archivo.' });
         }
-        if (!req.file) {
-            return res.status(400).json({ message: 'No se recibio ninguna imagen.' });
+        if (!req.file || !req.file.buffer) {
+            return res.status(400).json({ message: 'No se recibió ninguna imagen.' });
         }
 
         try {
-            // Delete old avatar if it's a local file
-            const pros = await query(`SELECT profile_picture FROM professionals WHERE id = ${req.userId}`);
-            const oldPic = pros && pros[0] && pros[0].profile_picture;
-            if (oldPic && oldPic.startsWith('/uploads/avatars/')) {
-                const oldPath = path.join(__dirname, '../../public', oldPic);
-                try {
-                    if (fs.existsSync(oldPath)) fs.unlinkSync(oldPath);
-                } catch (unlinkErr) {
-                    console.warn('[Avatar Cleanup Warning]', unlinkErr.message);
+            const rawExt = path.extname(req.file.originalname || '').toLowerCase();
+            const ext = rawExt || '.jpg';
+            const filename = `avatar_pro_${req.userId}_${Date.now()}${ext}`;
+            const projectId = process.env.CLOUD_ID || 28;
+
+            let publicUrl = null;
+
+            // 1. Upload to SpiderWeb Cloud Storage
+            try {
+                console.log(`[PRO AVATAR] Subiendo a SpiderWeb Cloud Storage (proyecto ${projectId})...`);
+                const cloudRes = await sdk.storage.uploadFile(
+                    projectId,
+                    req.file.buffer,
+                    filename,
+                    req.file.mimetype || 'image/jpeg'
+                );
+
+                if (cloudRes && cloudRes.success && Array.isArray(cloudRes.files) && cloudRes.files.length > 0) {
+                    let rawUrl = cloudRes.files[0].url;
+                    if (rawUrl && rawUrl.startsWith('http://')) {
+                        rawUrl = rawUrl.replace('http://', 'https://');
+                    }
+                    publicUrl = rawUrl;
+                    console.log('[PRO AVATAR] Subida exitosa a Cloud Storage:', publicUrl);
+                }
+            } catch (cloudErr) {
+                console.error('[PRO AVATAR Cloud Storage Error]', cloudErr.message || cloudErr);
+            }
+
+            // 2. Fallback if Cloud Storage is unavailable
+            if (!publicUrl) {
+                const isVercel = Boolean(process.env.VERCEL || process.env.AWS_LAMBDA_FUNCTION_NAME);
+                if (!isVercel) {
+                    const uploadsDir = path.join(__dirname, '../../public/uploads/avatars');
+                    if (!fs.existsSync(uploadsDir)) fs.mkdirSync(uploadsDir, { recursive: true });
+                    const localFilePath = path.join(uploadsDir, filename);
+                    fs.writeFileSync(localFilePath, req.file.buffer);
+                    publicUrl = `/uploads/avatars/${filename}`;
+                } else {
+                    const mime = req.file.mimetype || 'image/jpeg';
+                    const b64 = req.file.buffer.toString('base64');
+                    publicUrl = `data:${mime};base64,${b64}`;
                 }
             }
 
-            const publicUrl = `/uploads/avatars/${req.file.filename}`;
-            await query(`UPDATE professionals SET profile_picture = ${escapeSql(publicUrl)} WHERE id = ${req.userId}`);
-            return res.json({ message: 'Foto de perfil actualizada.', url: publicUrl });
+            let finalUrl = publicUrl;
+            if (publicUrl && publicUrl.startsWith('http')) {
+                finalUrl = `/api/public/avatar-proxy?url=${encodeURIComponent(publicUrl)}`;
+            }
+
+            await query(`UPDATE professionals SET profile_picture = ${escapeSql(finalUrl)} WHERE id = ${req.userId}`);
+            return res.json({ message: 'Foto de perfil actualizada.', url: finalUrl });
         } catch (dbErr) {
             console.error('[PRO Error upload-avatar]', dbErr);
             return res.status(500).json({ message: 'Error al guardar la foto de perfil.' });

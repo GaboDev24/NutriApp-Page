@@ -48,4 +48,35 @@ router.get('/testimonials', async (req, res) => {
     }
 });
 
+// Avatar Image Proxy to bypass Cross-Origin-Resource-Policy (CORP) restrictions from cloud storage
+router.get('/avatar-proxy', async (req, res) => {
+    try {
+        const imageUrl = req.query.url;
+        if (!imageUrl) {
+            return res.status(400).send('URL de imagen requerida');
+        }
+
+        if (!imageUrl.includes('spiderwebargapi.com.ar') && !imageUrl.startsWith('http')) {
+            return res.status(400).send('Dominio no permitido');
+        }
+
+        const fetchRes = await fetch(imageUrl);
+        if (!fetchRes.ok) {
+            return res.status(fetchRes.status).send('No se pudo obtener la imagen');
+        }
+
+        const contentType = fetchRes.headers.get('content-type') || 'image/jpeg';
+        const buffer = Buffer.from(await fetchRes.arrayBuffer());
+
+        res.setHeader('Content-Type', contentType);
+        res.setHeader('Cache-Control', 'public, max-age=86400');
+        res.setHeader('Access-Control-Allow-Origin', '*');
+        res.setHeader('Cross-Origin-Resource-Policy', 'cross-origin');
+        return res.send(buffer);
+    } catch (err) {
+        console.error('[AVATAR PROXY Error]', err.message);
+        return res.status(500).send('Error al obtener la imagen');
+    }
+});
+
 module.exports = router;

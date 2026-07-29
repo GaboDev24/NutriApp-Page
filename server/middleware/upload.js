@@ -5,36 +5,9 @@ const os = require('os');
 
 const isVercel = Boolean(process.env.VERCEL || process.env.AWS_LAMBDA_FUNCTION_NAME);
 
-// On Vercel serverless, filesystem is read-only except /tmp
 const UPLOADS_DIR = isVercel
     ? path.join(os.tmpdir(), 'uploads/avatars')
     : path.join(__dirname, '../../public/uploads/avatars');
-
-const ensureUploadDir = () => {
-    try {
-        if (!fs.existsSync(UPLOADS_DIR)) {
-            fs.mkdirSync(UPLOADS_DIR, { recursive: true });
-        }
-    } catch (err) {
-        console.error('[Upload Dir Error]', err);
-    }
-};
-
-ensureUploadDir();
-
-const storage = multer.diskStorage({
-    destination: (req, file, cb) => {
-        ensureUploadDir();
-        cb(null, UPLOADS_DIR);
-    },
-    filename: (req, file, cb) => {
-        const rawExt = path.extname(file.originalname || '').toLowerCase();
-        const ext = rawExt || '.jpg';
-        const userId = req.userId || 'user';
-        const uniqueName = `avatar_${userId}_${Date.now()}${ext}`;
-        cb(null, uniqueName);
-    }
-});
 
 const fileFilter = (req, file, cb) => {
     if (!file || !file.originalname) {
@@ -48,10 +21,13 @@ const fileFilter = (req, file, cb) => {
     cb(null, true);
 };
 
+const storage = multer.memoryStorage();
+
 const upload = multer({
     storage,
     fileFilter,
-    limits: { fileSize: 5 * 1024 * 1024 } // 5 MB max
+    limits: { fileSize: 4.5 * 1024 * 1024 } // 4.5 MB max for Vercel payload limit
 });
 
 module.exports = { upload, UPLOADS_DIR, isVercel };
+

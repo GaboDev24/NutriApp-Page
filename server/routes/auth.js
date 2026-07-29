@@ -174,7 +174,7 @@ router.post('/login', async (req, res) => {
 
         const token = jwt.sign({ id: user.id, role: user.role || role }, process.env.JWT_SECRET, { expiresIn: '1d' });
 
-        res.json({ token, user: { id: user.id, name: user.name, role: user.role || role } });
+        res.json({ token, user: { id: user.id, name: user.name, role: user.role || role, profile_picture: user.profile_picture || null } });
     } catch (err) {
         console.error('[AUTH Error login]', err);
         res.status(500).json({ message: 'Error en el servidor al iniciar sesión' });
