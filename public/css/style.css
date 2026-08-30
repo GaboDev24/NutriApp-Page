@@ -1048,6 +1048,25 @@ footer {
     display: block;
 }
 
+/* ==========================================================================
+   DASHBOARD FOOTER
+   ========================================================================== */
+
+.dashboard-footer {
+    width: 100%;
+    padding: 1.25rem 2rem;
+    text-align: center;
+    color: var(--text-muted);
+    font-size: 0.875rem;
+    border-top: 1px solid var(--border);
+    background: var(--bg-card);
+    margin-top: 2rem;
+}
+
+.dashboard-footer strong {
+    color: var(--primary-dark);
+}
+
 @keyframes fadeIn {
     from { opacity: 0; transform: translateY(6px); }
     to   { opacity: 1; transform: translateY(0); }
