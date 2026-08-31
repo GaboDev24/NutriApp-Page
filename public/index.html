@@ -231,6 +231,10 @@
                 <div class="section-header">
                     <h2>Experiencias de Nuestros Pacientes</h2>
                     <p>Historias reales de personas que transformaron su salud con NutriApp.</p>
+                    <button id="open-opinion-btn" class="btn btn-primary" style="margin-top:1.5rem; display:inline-flex; align-items:center; gap:0.5rem;">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+                        ¡Dejanos tu opinión!
+                    </button>
                 </div>
                 <div class="testimonials-grid" id="testimonials-container">
                     <div class="testimonial-card" style="grid-column:1/-1; text-align:center; padding:2rem;">
@@ -239,6 +243,40 @@
                 </div>
             </div>
         </section>
+
+        <!-- Modal: Dejanos tu opinión -->
+        <div id="opinion-modal" style="display:none; position:fixed; inset:0; z-index:9999; background:rgba(0,0,0,0.65); backdrop-filter:blur(6px); align-items:center; justify-content:center;">
+            <div style="background:var(--surface); border:1px solid var(--border); border-radius:1.25rem; padding:2.5rem; width:min(480px,90vw); position:relative; box-shadow:0 24px 80px rgba(0,0,0,0.45); animation:fadeInUp 0.3s ease;">
+                <button id="close-opinion-btn" style="position:absolute; top:1rem; right:1rem; background:transparent; border:none; cursor:pointer; color:var(--text-muted); line-height:1;" aria-label="Cerrar">
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                </button>
+                <h3 style="margin-bottom:0.4rem; font-size:1.3rem;">¡Contanos tu experiencia!</h3>
+                <p style="color:var(--text-muted); font-size:0.9rem; margin-bottom:1.5rem;">Tu opinión aparecerá en esta sección para que otros conozcan NutriApp.</p>
+                <form id="opinion-form">
+                    <div class="form-group">
+                        <label for="op-name">Tu nombre</label>
+                        <input type="text" id="op-name" class="form-control" placeholder="Ej: María González" maxlength="100" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Calificación</label>
+                        <div id="star-rating" style="display:flex; gap:0.4rem; font-size:1.8rem; cursor:pointer; margin-top:0.25rem;" role="group" aria-label="Calificación de 1 a 5 estrellas">
+                            <span class="star" data-val="1" style="color:var(--text-muted); transition:color 0.15s;">&#9733;</span>
+                            <span class="star" data-val="2" style="color:var(--text-muted); transition:color 0.15s;">&#9733;</span>
+                            <span class="star" data-val="3" style="color:var(--text-muted); transition:color 0.15s;">&#9733;</span>
+                            <span class="star" data-val="4" style="color:var(--text-muted); transition:color 0.15s;">&#9733;</span>
+                            <span class="star" data-val="5" style="color:var(--text-muted); transition:color 0.15s;">&#9733;</span>
+                        </div>
+                        <input type="hidden" id="op-rating" value="5">
+                    </div>
+                    <div class="form-group">
+                        <label for="op-text">Tu opinión</label>
+                        <textarea id="op-text" class="form-control" placeholder="Contanos cómo te ayudó NutriApp..." maxlength="500" required style="min-height:110px;"></textarea>
+                    </div>
+                    <div id="op-feedback" style="display:none; padding:0.75rem 1rem; border-radius:0.5rem; font-size:0.9rem; margin-bottom:1rem;"></div>
+                    <button type="submit" id="op-submit-btn" class="btn btn-primary" style="width:100%;">Publicar mi opinión</button>
+                </form>
+            </div>
+        </div>
 
         <!-- Contacto e Informes -->
         <section id="contacto" class="contact-section">
@@ -254,21 +292,16 @@
                                 <div class="contact-icon">
                                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
                                 </div>
-                                <span>Sede Central NutriApp, Buenos Aires, Argentina</span>
+                                <span>Mendoza, Argentina</span>
                             </div>
                             <div class="contact-item">
                                 <div class="contact-icon">
                                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
                                 </div>
-                                <span>soporte@nutriapp.com.ar</span>
-                            </div>
-                            <div class="contact-item">
-                                <div class="contact-icon">
-                                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 14.1a19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 3.6 3.3h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 10a16 16 0 0 0 6 6l.86-.86a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 17.24z"/></svg>
-                                </div>
-                                <span>+54 11 4820-9100</span>
+                                <span><a href="mailto:officialspiderwebdesign@gmail.com" style="color:inherit; text-decoration:none;">officialspiderwebdesign@gmail.com</a></span>
                             </div>
                         </div>
+
                     </div>
 
                     <div class="contact-form">
@@ -502,6 +535,135 @@
 
         loadProfessionals();
         loadTestimonials();
+
+        // ── Opinion Modal ──────────────────────────────────────────────────
+        const opinionModal  = document.getElementById('opinion-modal');
+        const openOpinBtn   = document.getElementById('open-opinion-btn');
+        const closeOpinBtn  = document.getElementById('close-opinion-btn');
+        const opinionForm   = document.getElementById('opinion-form');
+        const opFeedback    = document.getElementById('op-feedback');
+        const opSubmitBtn   = document.getElementById('op-submit-btn');
+        const opRatingInput = document.getElementById('op-rating');
+        const stars         = document.querySelectorAll('#star-rating .star');
+
+        function openModal() {
+            opinionModal.style.display = 'flex';
+            document.body.style.overflow = 'hidden';
+        }
+        function closeModal() {
+            opinionModal.style.display = 'none';
+            document.body.style.overflow = '';
+        }
+
+        openOpinBtn.addEventListener('click', openModal);
+        closeOpinBtn.addEventListener('click', closeModal);
+        opinionModal.addEventListener('click', e => { if (e.target === opinionModal) closeModal(); });
+        document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
+
+        // Star rating interaction
+        let selectedRating = 5;
+        function highlightStars(val) {
+            stars.forEach(s => {
+                s.style.color = parseInt(s.dataset.val) <= val ? '#f59e0b' : 'var(--text-muted)';
+            });
+        }
+        highlightStars(5);
+        stars.forEach(star => {
+            star.addEventListener('mouseenter', () => highlightStars(parseInt(star.dataset.val)));
+            star.addEventListener('mouseleave', () => highlightStars(selectedRating));
+            star.addEventListener('click', () => {
+                selectedRating = parseInt(star.dataset.val);
+                opRatingInput.value = selectedRating;
+                highlightStars(selectedRating);
+            });
+        });
+
+        // Submit opinion
+        opinionForm.addEventListener('submit', async e => {
+            e.preventDefault();
+            const name = document.getElementById('op-name').value.trim();
+            const text = document.getElementById('op-text').value.trim();
+            const rating = parseInt(opRatingInput.value) || 5;
+
+            opSubmitBtn.disabled = true;
+            opSubmitBtn.textContent = 'Enviando...';
+            opFeedback.style.display = 'none';
+
+            try {
+                const res = await fetch('/api/public/opinions', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ author_name: name, rating, opinion_text: text })
+                });
+                const data = await res.json();
+                if (res.ok) {
+                    opFeedback.style.background = 'rgba(34,197,94,0.12)';
+                    opFeedback.style.color = '#22c55e';
+                    opFeedback.style.border = '1px solid rgba(34,197,94,0.3)';
+                    opFeedback.textContent = '¡Gracias! Tu opinión ya fue publicada. 🎉';
+                    opFeedback.style.display = 'block';
+                    opinionForm.reset();
+                    selectedRating = 5;
+                    highlightStars(5);
+                    opRatingInput.value = 5;
+                    loadOpinions();
+                    setTimeout(closeModal, 2800);
+                } else {
+                    throw new Error(data.message || 'Error desconocido');
+                }
+            } catch (err) {
+                opFeedback.style.background = 'rgba(239,68,68,0.12)';
+                opFeedback.style.color = '#ef4444';
+                opFeedback.style.border = '1px solid rgba(239,68,68,0.3)';
+                opFeedback.textContent = '❌ ' + err.message;
+                opFeedback.style.display = 'block';
+            } finally {
+                opSubmitBtn.disabled = false;
+                opSubmitBtn.textContent = 'Publicar mi opinión';
+            }
+        });
+
+        // ── Load Opinions (user submitted) ─────────────────────────────────
+        async function loadOpinions() {
+            try {
+                const res  = await fetch('/api/public/opinions');
+                const data = await res.json();
+                const container = document.getElementById('testimonials-container');
+                if (!container) return;
+
+                // Merge with any testimonials already loaded
+                if (!Array.isArray(data) || data.length === 0) return;
+
+                const starsHtml = n => '&#9733;'.repeat(n) + (n < 5 ? '<span style="color:var(--text-muted);">&#9733;</span>'.repeat(5 - n) : '');
+
+                const existingContent = container.innerHTML;
+                const opCards = data.map(op => {
+                    const initials = op.author_name.split(' ').map(w => w[0]).join('').slice(0,2).toUpperCase();
+                    return `
+                        <div class="testimonial-card" style="animation:fadeInUp 0.4s ease;">
+                            <div>
+                                <div class="testimonial-stars">${starsHtml(op.rating)}</div>
+                                <p class="testimonial-text">&ldquo;${op.opinion_text}&rdquo;</p>
+                            </div>
+                            <div class="testimonial-user">
+                                <div class="testimonial-avatar">${initials}</div>
+                                <div>
+                                    <div class="testimonial-name">${op.author_name}</div>
+                                    <div class="testimonial-role">Usuario de NutriApp</div>
+                                </div>
+                            </div>
+                        </div>`;
+                }).join('');
+
+                // Prepend opinions before auto-generated ones
+                container.innerHTML = opCards + (existingContent.includes('testimonial-card') ? existingContent.replace(/<div[^>]*style="grid-column[^>]*>.*?<\/div>/s,'') : '');
+            } catch (err) {
+                console.error('Error al cargar opiniones:', err);
+            }
+        }
+
+        loadOpinions();
+
     </script>
 </body>
 

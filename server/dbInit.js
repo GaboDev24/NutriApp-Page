@@ -76,6 +76,13 @@ async function initDatabase() {
             recipientModel VARCHAR(50) NOT NULL,
             content TEXT NOT NULL,
             createdAt DATETIME DEFAULT CURRENT_TIMESTAMP
+        );`,
+        `CREATE TABLE IF NOT EXISTS opinions (
+            id INT AUTO_INCREMENT PRIMARY KEY,
+            author_name VARCHAR(255) NOT NULL,
+            rating INT NOT NULL DEFAULT 5,
+            opinion_text TEXT NOT NULL,
+            created_at DATETIME DEFAULT CURRENT_TIMESTAMP
         );`
     ];
 

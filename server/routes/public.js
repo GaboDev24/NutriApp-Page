@@ -48,6 +48,42 @@ router.get('/testimonials', async (req, res) => {
     }
 });
 
+// Get public user opinions
+router.get('/opinions', async (req, res) => {
+    try {
+        const opinions = await query(`
+            SELECT id, author_name, rating, opinion_text, created_at
+            FROM opinions
+            ORDER BY created_at DESC
+            LIMIT 20
+        `);
+        res.json(opinions || []);
+    } catch (err) {
+        console.error('[PUBLIC Error opinions GET]', err);
+        res.json([]);
+    }
+});
+
+// Submit a new user opinion
+router.post('/opinions', async (req, res) => {
+    try {
+        const { author_name, rating, opinion_text } = req.body;
+        if (!author_name || !opinion_text) {
+            return res.status(400).json({ message: 'Nombre y opinión son requeridos.' });
+        }
+        const safeRating = Math.min(5, Math.max(1, parseInt(rating) || 5));
+        await query(
+            `INSERT INTO opinions (author_name, rating, opinion_text) VALUES (?, ?, ?)`,
+            [author_name.trim().slice(0, 100), safeRating, opinion_text.trim().slice(0, 1000)]
+        );
+        res.json({ success: true, message: '¡Gracias por tu opinión!' });
+    } catch (err) {
+        console.error('[PUBLIC Error opinions POST]', err);
+        res.status(500).json({ message: 'Error al guardar la opinión.' });
+    }
+});
+
+
 // Avatar Image Proxy to bypass Cross-Origin-Resource-Policy (CORP) restrictions from cloud storage
 router.get('/avatar-proxy', async (req, res) => {
     try {
