@@ -4,33 +4,73 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NutriApp - Reenviar Verificación</title>
-    <link rel="stylesheet" href="css/style.css">
+    <title>NutriApp | Reenviar verificación</title>
+    <meta name="description" content="Pide un nuevo correo de verificación para activar tu cuenta de NutriApp.">
+    <link rel="stylesheet" href="css/site.css">
 </head>
 
-<body>
-    <div class="auth-wrapper">
-        <div class="auth-card glass">
-            <div class="auth-header">
-                <h2>¿No recibiste el correo?</h2>
-                <p>Ingresa tu email y te enviaremos uno nuevo</p>
+<body class="auth-body">
+    <main class="auth">
+        <aside class="auth-aside">
+            <a href="index.html" class="brand" aria-label="NutriApp, volver al inicio">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10z"></path>
+                    <path d="M2 21c0-3 1.85-5.36 5.08-6C9.5 14.52 12 13 13 12"></path>
+                </svg>
+                NutriApp
+            </a>
+            <span class="auth-badge">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+                </svg>
+                Activación de cuenta
+            </span>
+            <p class="auth-copy lead">Un correo más y tu cuenta queda activa para comenzar.</p>
+            <figure class="auth-photo">
+                <img src="assets/nutritionist.png" width="1024" height="1024" alt="Nutricionista con guardapolvo blanco y estetoscopio en una cocina luminosa" fetchpriority="high">
+            </figure>
+            <div class="auth-meta">
+                <p class="auth-place">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                        <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
+                        <circle cx="12" cy="10" r="3"></circle>
+                    </svg>
+                    Mendoza, Argentina
+                </p>
+                <a href="index.html" class="auth-home">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                        <line x1="19" y1="12" x2="5" y2="12"></line>
+                        <polyline points="12 19 5 12 12 5"></polyline>
+                    </svg>
+                    Volver al inicio
+                </a>
             </div>
+        </aside>
 
-            <div id="notification" class="notification"></div>
+        <section class="auth-panel" aria-labelledby="auth-title">
+            <div class="auth-card">
+                <header class="auth-header">
+                    <h1 id="auth-title">¿No recibiste el correo?</h1>
+                    <p>Ingresa tu correo registrado y te enviaremos un nuevo enlace de activación.</p>
+                </header>
 
-            <form id="resendVerificationForm">
-                <div class="form-group">
-                    <label for="email">Correo Electrónico</label>
-                    <input type="email" id="email" class="form-input" placeholder="correo@ejemplo.com" required>
+                <div id="notification" class="notification" role="status" aria-live="polite"></div>
+
+                <form id="resendVerificationForm" novalidate>
+                    <div class="field">
+                        <label for="email">Correo electrónico</label>
+                        <input type="email" id="email" name="email" class="input" placeholder="correo@ejemplo.com" autocomplete="email" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary" id="resendSubmitBtn">Reenviar correo de activación</button>
+                </form>
+
+                <div class="auth-footer">
+                    <p>¿Ya tienes tu cuenta activa? <a href="login.html">Inicia sesión</a></p>
+                    <p>¿Aún no te has registrado? <a href="signup.html">Crea tu cuenta gratis</a></p>
                 </div>
-                <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 0.5rem;">Reenviar Correo</button>
-            </form>
-
-            <div class="auth-footer">
-                <a href="login.html">Ir al inicio de sesión</a>
             </div>
-        </div>
-    </div>
+        </section>
+    </main>
     <script src="js/auth.js"></script>
 </body>
 
